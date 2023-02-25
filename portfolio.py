@@ -5,7 +5,7 @@ import queue
 import numpy as np
 import pandas as pd
 
-from event import FillEvent, OrderEvent
+from event import FillEvent, OrderEvent, SignalEvent
 
 # from performance import create_sharpe_ratio
 
@@ -98,7 +98,7 @@ class Portfolio:
         for symbol in self.symbol_list:
             market_value = self.current_positions[
                 symbol
-            ] * self.bars.get_latest_bar_value(s, "adj_close")
+            ] * self.bars.get_latest_bar_value(symbol, "adj_close")
             holdings[symbol] = market_value
             holdings["total"] += market_value
 
@@ -128,12 +128,56 @@ class Portfolio:
         cost = fill_direction * fill_cost * fill.quantity
         self.current_holdings[fill.symbol] += cost
         self.current_holdings["commission"] += fill.commission
-        self.current_holdings["cash"] -= (cost + fill.commission)
-        self.current_holdings["total"] -= (cost + fill.commission)
+        self.current_holdings["cash"] -= cost + fill.commission
+        self.current_holdings["total"] -= cost + fill.commission
 
-    def update_using_fill_event(self, event: Event):
+    def update_using_fill_event(self, event: FillEvent):
         """Updates the portfolio current positions and holdings
         using the fill event"""
         if event.type == "FILL":
             self.update_positions_from_fill(event)
             self.update_holdings_from_fill(event)
+
+    def generate_order_with_quantity(
+        self, signal: SignalEvent, quantity: int
+    ) -> OrderEvent:
+        """Files an Order object with a constant quantity sizing, without
+        risk management or position sizing considerations."""
+        order = None
+        symbol = signal.symbol
+        direction = signal.signal_type
+        strength = signal.strength
+
+        current_quantity = self.current_positions[symbol]
+        order_type = "MKT"
+
+        if direction == "LONG" and current_quantity == 0:
+            order = OrderEvent(symbol, order_type, market_quantity, "BUY")
+        if direction == "SHORT" and current_quantity == 0:
+            order = OrderEvent(symbol, order_type, market_quantity, "SELL")
+
+        if direction == "EXIT" and current_quantity > 0:
+            order = OrderEvent(symbol, order_type, abs(current_quantity), "SELL")
+        if direction == "EXIT" and current_quantity < 0:
+            order = OrderEvent(symbol, order_type, abs(current_quantity), "BUY")
+
+        return order
+
+    def update_signal(self, event: SignalEvent) -> None:
+        """Acts on the Signal event to generate new orders."""
+        if event.type == "SIGNAL":
+            order_event = self.generate_order_with_quantity(event)
+            self.events.put(order_event)
+
+    def create_equity_curve_dataframe(self) -> None:
+        """Creates a dataframe containing the equity curve and returns."""
+        curve = pd.DataFrame(self.all_holdings)
+        curve.set_index("datetime", inplace=True)
+        curve["returns"] = curve["total"].pct_change()
+        curve["equity_curve"] = (1.0 + curve["returns"]).cumprod()
+
+        self.equity_curve = curve
+
+    def output_summary_with_statistics(self):
+        """ "Create a list of summary statistics for the portfolio."""
+        pass
