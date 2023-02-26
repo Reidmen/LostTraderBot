@@ -22,3 +22,10 @@ class SimulatedExecutionHandler(ExecutionHandler):
         """Initializes the handler, setting the event queues up
         internally."""
         self.events = events
+    def execute_order(self, event: FillEvent):
+        """Simply converts Order object into Fill object."""
+        if event.type == "FILL":
+            fill_event = FillEvent(
+                    datetime.datetime.utcnow(), event.symbol,
+                    'ARCA', event.quantity, event.direction, None)
+            self.events.put(fill_event)
