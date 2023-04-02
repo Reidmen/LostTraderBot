@@ -1,7 +1,6 @@
-import datetime
 import queue
 import time
-from datime import date
+from datetime import date
 from data import DataHandler
 from execution import ExecutionHandler
 from strategy import Strategy
@@ -19,7 +18,7 @@ class Backtest:
         initial_capital: float,
         start_date: date,
         heartbeat: int,
-        data_handler: DataHandler,
+        data_handler_object: DataHandler,
         execution_handler: ExecutionHandler,
         strategy: Strategy,
         portfolio: Portfolio,
@@ -29,33 +28,32 @@ class Backtest:
         self.initial_capital = initial_capital
         self.heartbeat = heartbeat
         self.start_date = start_date
+        self.events = queue.Queue()
 
         self._generate_trading_instances(
-            data_handler, execution_handler, strategy, portfolio
+            data_handler_object, execution_handler, strategy, portfolio
         )
         # self.data_handler = data_handler
         # self.execution_handler = execution_handler
         # self.strategy = strategy
         # self.portflio = portfolio
-
-        self.events = queue.Queue()
-
         self.signals = 0
         self.orders = 0
         self.fills = 0
         self.number_of_strategies = 1
-        self._generate_trading_instances()
 
     def _generate_trading_instances(
         self,
-        data_handler: DataHandler,
+        data_handler_object: DataHandler,
         execution_handler: ExecutionHandler,
         strategy: Strategy,
         portfolio: Portfolio,
     ):
         """Creates trading instances."""
         print("Creating DataHandler, ExecutionHandler, Strategy and Portfolio")
-        self.data_handler = data_handler(self.events, self.csv_directory)
+        self.data_handler = data_handler_object(
+            self.events, self.csv_directory, self.symbol_list
+        )
         self.strategy = strategy(self.data_handler, self.events)
         self.portfolio = portfolio(
             self.data_handler, self.events, self.start_date, self.initial_capital
@@ -114,4 +112,3 @@ class Backtest:
         """Simulates backend and outputs performace."""
         self._run_backtest()
         self._output_performance()
-

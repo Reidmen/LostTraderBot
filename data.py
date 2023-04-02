@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+from typing import List
 import datetime
 import os, os.path
 
@@ -19,35 +19,35 @@ class DataHandler(ABC):
     """
 
     @abstractmethod
-    def get_latest_bar(self, symbol: str):
+    def _get_latest_bar(self, symbol: str):
         """Returns the last updated bar."""
         raise NotImplementedError("Implement get_latest_bar")
 
     @abstractmethod
-    def get_latest_bars(self, symbol: str, N: int = 1):
+    def _get_latest_bars(self, symbol: str, N: int = 1):
         """Returns the last N updated bars."""
         raise NotImplementedError("Implement get_latest_bars")
 
     @abstractmethod
-    def get_latest_bar_datetime(self, symbol: str):
+    def _get_latest_bar_datetime(self, symbol: str):
         """Returns a Python datetime object for the last bar."""
         raise NotImplementedError("Implement get_lastest_bar_datetime")
 
     @abstractmethod
-    def get_latest_bar_value(self, symbol: str, value_type: float):
+    def _get_latest_bar_value(self, symbol: str, value_type: float):
         """Returns one of the Open, High, Low, Close, Volume or OI
         form the last bar.
         """
         raise NotImplementedError("Implement get_latest_bar_value")
 
     @abstractmethod
-    def get_latest_bars_values(self, symbol: str, value_type: float, N: int = 1):
+    def _get_latest_bars_values(self, symbol: str, value_type: float, N: int = 1):
         """Retunrs the last N bar values from the latest symbol list,
         or N-k if less available."""
         raise NotImplementedError("Implement get_latest_bars_values")
 
     @abstractmethod
-    def update_bars(self):
+    def _update_bars(self):
         """Puches the latest bars to the bars_squeue for each symbol
         in the tuple OHLCVI format:
         (datetime, open, high, low, close, volume, open interest).
@@ -62,7 +62,7 @@ class HistoricCSVDataHandler(DataHandler):
     latest bar, analogous to a live interface.
     """
 
-    def __init__(self, events: Event, csv_dir: str, symbol_list: str):
+    def __init__(self, events: List[Event], csv_dir: str, symbol_list: str):
         """Initializes the historic data handler"""
         self.events = events
         self.csv_dir = csv_dir
@@ -117,4 +117,62 @@ class HistoricCSVDataHandler(DataHandler):
         try:
             bars_list = self.latest_symbol_data[symbol]
         except KeyError:
-            raise Exception("The symbol is not available in the historical data set.")
+            raise Exception("The symbol is not available in the historical dataset.")
+        else:
+            return bars_list[-1]
+
+    def _get_latest_bars(self, symbol, N=1):
+        """Returns the last N bars from the latest_symbol list or
+        N-k if less available."""
+        try:
+            bars_list = self.latest_symbol_data[symbol]
+        except KeyError:
+            raise Exception("The symbol is not avaialble in the historical dataset.")
+        else:
+            return bars_list[-N:]
+
+    def _get_latest_bar_datetime(self, symbol: str):
+        """Returns a python datetime object for the last bar."""
+        try:
+            bars_list = self.latest_symbol_data[symbol]
+        except KeyError:
+            raise Exception("The symbol is not available int he historical dataset.")
+        else:
+            return bars_list[-1][0]
+
+    def _get_latest_bar_value(self, symbol: str, value_type):
+        """Returns one of the Open, High, Low, Close, Volume or
+        IO value from the pandas Bar series object."""
+        try:
+            bars_list = self.latest_symbol_data[symbol]
+        except KeyError:
+            raise Exception("The symbol is not available in the historical dataset.")
+        else:
+            return getattr(bars_list[-1][1], value_type)
+
+    def _get_latest_bars_values(self, symbol, value_type, N=1):
+        """Returns the last N bar values from the latest_symbol list
+        or N-k if less available."""
+        try:
+            bars_list = self._get_latest_bars(symbol, N)
+        except KeyError:
+            raise Exception("The symbol is not available in the historical dataset.")
+        else:
+            return np.array(
+                    [getattr(bar[1], value_type) for bar in bars_list]
+                    )
+
+    def _update_bars(self):
+        """"Pushes the latest bar to the latest symbol data structure."""
+        for symbol in self.symbol_list:
+            try:
+                bar = next(self._get_latest_bar(symbol))
+            except StopIteration:
+                self._continue_backtest = False
+            else:
+                if bar is not None:
+                    self.latest_symbol_data[symbol].append(bar)
+
+        self.events.put(MarketEvent())
+
+

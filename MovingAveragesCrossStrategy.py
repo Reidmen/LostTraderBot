@@ -1,13 +1,15 @@
 import datetime
-
+import os
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
+import yfinance as yf
 
 from strategy import Strategy
-from event import SignalEvent
+from event import Event, MarketEvent, SignalEvent
 from backtest import Backtest
-from data import HistoricCSVDataHandler
+from data import DataHandler, DataHandler, HistoricCSVDataHandler
 from execution import SimulatedExecutionHandler
 from portfolio import Portfolio
 
@@ -34,7 +36,7 @@ class MovingAveragesCrossStrategy(Strategy):
 
         return bought
 
-    def compute_signals(self, event: Event):
+    def compute_signals(self, event: MarketEvent):
         """Compute signals based on the MAC"""
         if event.type == "MARKET":
             for symbol in self.symbol_list:
@@ -65,9 +67,36 @@ class MovingAveragesCrossStrategy(Strategy):
                     self.bought[symbol] = "OUT"
 
 
+def data_scrapper(symbol: str):
+    """Stock price scrapper using yfinance.
+
+    It creates a new csv dataset if not found in
+    the relative path.
+    """
+    assert isinstance(symbol, str), "symbol must be str"
+
+    Path('./datasets').mkdir(parents=True, exist_ok=True)
+    filepath = f'./datasets/dataset_{symbol}.csv'
+    path = Path(filepath)
+
+    if not path.is_file():
+        dataset_ticker = yf.Ticker(symbol)
+        start_date = '2022-01-01'
+        end_date = datetime.datetime.now().strftime('%Y-%m-%d')
+        dataset_history = dataset_ticker.history(start=start_date,
+                end=end_date, interval='1d')
+        dataset_history.to_csv(filepath)
+        print(f"head of dataset history for {symbol}")
+        print(dataset_history.head())
+    return str(path)
+
+
+
+
 if __name__ == "__main__":
     # TODO: Make this part user dependent
     symbol_list = ["AAPL"]
+    csv_dir = [data_scrapper(symbol) for symbol in symbol_list]
     initial_capital = 100_000
     heartbeat = 0.0
     start_date = datetime.datetime(2000, 1, 1, 0, 0, 0)
@@ -76,7 +105,7 @@ if __name__ == "__main__":
         csv_dir,
         symbol_list,
         initial_capital,
-        heartbear,
+        heartbeat,
         start_date,
         HistoricCSVDataHandler,
         SimulatedExecutionHandler,

@@ -1,5 +1,6 @@
+from typing import Union
 from abc import ABC, abstractmethod
-from datetime
+import datetime
 import queue
 
 from event import FillEvent, OrderEvent
@@ -18,7 +19,7 @@ class ExecutionHandler(ABC):
 
 class SimulatedExecutionHandler(ExecutionHandler):
     """TO BE COMPLETED"""
-    def __init__(self, event: FillEvent | OrderEvent):
+    def __init__(self, event: Union[FillEvent, OrderEvent]):
         """Initializes the handler, setting the event queues up
         internally."""
         self.events = events

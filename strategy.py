@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import sys
 
-if sys.version < 3.9:
+if sys.version < '3.8':
     raise Exception(f"Upgrade Python, found {sys.version}")
 
 import datetime
