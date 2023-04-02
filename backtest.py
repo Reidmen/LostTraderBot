@@ -33,10 +33,6 @@ class Backtest:
         self._generate_trading_instances(
             data_handler_object, execution_handler, strategy, portfolio
         )
-        # self.data_handler = data_handler
-        # self.execution_handler = execution_handler
-        # self.strategy = strategy
-        # self.portflio = portfolio
         self.signals = 0
         self.orders = 0
         self.fills = 0

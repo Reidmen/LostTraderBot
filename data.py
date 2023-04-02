@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
+from pathlib import Path
 import datetime
 import os, os.path
 
@@ -75,24 +76,17 @@ class HistoricCSVDataHandler(DataHandler):
         self._open_convert_csv()
 
     def _open_convert_csv(self):
-        """Here we assume the data is taken from Yahoo ?"""
+        """Here we assume the data is taken from yfinance"""
+        # TODO Include different sources
+        # it requires reformatting the database
         comb_index = None
         for s in self.symbol_list:
             self.symbol_data[s] = pd.io.parsers.read_csv(
-                os.path.join(self.csv_dir, f"{s}.csv"),
-                header=0,
-                index_col=0,
+                str(Path(self.csv_dir)),
                 parse_dates=True,
-                names=[
-                    "datetime",
-                    "open",
-                    "close",
-                    "low",
-                    "high",
-                    "volume",
-                    "adj_close",
-                ],
-            ).sort()
+                index_col='Date'
+            )
+            print(self.symbol_data[s].head())
 
             if comb_index is None:
                 comb_index = self.symbol_data[s].index
@@ -158,12 +152,10 @@ class HistoricCSVDataHandler(DataHandler):
         except KeyError:
             raise Exception("The symbol is not available in the historical dataset.")
         else:
-            return np.array(
-                    [getattr(bar[1], value_type) for bar in bars_list]
-                    )
+            return np.array([getattr(bar[1], value_type) for bar in bars_list])
 
     def _update_bars(self):
-        """"Pushes the latest bar to the latest symbol data structure."""
+        """ "Pushes the latest bar to the latest symbol data structure."""
         for symbol in self.symbol_list:
             try:
                 bar = next(self._get_latest_bar(symbol))
@@ -174,5 +166,3 @@ class HistoricCSVDataHandler(DataHandler):
                     self.latest_symbol_data[symbol].append(bar)
 
         self.events.put(MarketEvent())
-
-

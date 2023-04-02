@@ -67,7 +67,7 @@ class MovingAveragesCrossStrategy(Strategy):
                     self.bought[symbol] = "OUT"
 
 
-def data_scrapper(symbol: str):
+def data_scrapper(symbol: str) -> str:
     """Stock price scrapper using yfinance.
 
     It creates a new csv dataset if not found in
@@ -75,22 +75,21 @@ def data_scrapper(symbol: str):
     """
     assert isinstance(symbol, str), "symbol must be str"
 
-    Path('./datasets').mkdir(parents=True, exist_ok=True)
-    filepath = f'./datasets/dataset_{symbol}.csv'
+    Path("./datasets").mkdir(parents=True, exist_ok=True)
+    filepath = f"./datasets/dataset_{symbol}.csv"
     path = Path(filepath)
 
     if not path.is_file():
         dataset_ticker = yf.Ticker(symbol)
-        start_date = '2022-01-01'
-        end_date = datetime.datetime.now().strftime('%Y-%m-%d')
-        dataset_history = dataset_ticker.history(start=start_date,
-                end=end_date, interval='1d')
+        start_date = "2022-01-01"
+        end_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        dataset_history = dataset_ticker.history(
+            start=start_date, end=end_date, interval="1d"
+        )
         dataset_history.to_csv(filepath)
         print(f"head of dataset history for {symbol}")
         print(dataset_history.head())
-    return str(path)
-
-
+    return filepath
 
 
 if __name__ == "__main__":
@@ -99,17 +98,17 @@ if __name__ == "__main__":
     csv_dir = [data_scrapper(symbol) for symbol in symbol_list]
     initial_capital = 100_000
     heartbeat = 0.0
-    start_date = datetime.datetime(2000, 1, 1, 0, 0, 0)
+    start_date = datetime.datetime(2022, 1, 1, 0, 0, 0)
 
     backtest = Backtest(
-        csv_dir,
+        csv_dir[-1],
         symbol_list,
         initial_capital,
         heartbeat,
         start_date,
         HistoricCSVDataHandler,
         SimulatedExecutionHandler,
-        Portfolio,
         MovingAveragesCrossStrategy,
+        Portfolio,
     )
     backtest.simulate_trading()
