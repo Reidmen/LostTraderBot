@@ -60,12 +60,12 @@ class Backtest:
         """Executes the backtest."""
         i = 0
         while True:
-            if not self.data_handler.continue_backtest:
+            if not self.data_handler._continue_backtest:
                 break
             i += 1
             print(f"Current backtest iteration {i}")
             # update the market bars
-            self.data_handler.update_bars()
+            self.data_handler._update_bars()
 
             # handler events
             while True:
@@ -76,7 +76,7 @@ class Backtest:
                 else:
                     if event is not None:
                         if event.type == "MARKET":
-                            self.strategy.calculate_signal(event)
+                            self.strategy.compute_signals(event)
                             self.portfolio.update_timeindex(event)
                         elif event.type == "SIGNAL":
                             self.signals += 1

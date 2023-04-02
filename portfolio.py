@@ -30,7 +30,7 @@ class Portfolio:
         """
         self.bars = bars
         self.events = events
-        self.symbol_list = self.bar.symbol_list
+        self.symbol_list = self.bars.symbol_list
         self.start_date = start_date
         self.initial_capital = initial_capital
 
@@ -78,7 +78,7 @@ class Portfolio:
         market bar. This reflects the PREVIOUS bar, i.e. all current
         market data at this stage is known (OHLCV).
         """
-        latest_datetime = self.bars.get_latest_bar_datetime(self.symbol_list[0])
+        latest_datetime = self.bars._get_latest_bar_datetime(self.symbol_list[0])
         # update positions
         positions = dict((k, v) for k, v in [(s, 0) for s in self.symbol_list])
         positions["datetime"] = latest_datetime
@@ -98,7 +98,7 @@ class Portfolio:
         for symbol in self.symbol_list:
             market_value = self.current_positions[
                 symbol
-            ] * self.bars.get_latest_bar_value(symbol, "adj_close")
+            ] * self.bars._get_latest_bar_value(symbol, "Close")
             holdings[symbol] = market_value
             holdings["total"] += market_value
 
@@ -124,7 +124,7 @@ class Portfolio:
         if fill.direction == "SELL":
             fill_direction = -1
 
-        fill_cost = self.bars.get_latest_bar_value(fill.symbol, "adj_close")
+        fill_cost = self.bars._get_latest_bar_value(fill.symbol, "adj_close")
         cost = fill_direction * fill_cost * fill.quantity
         self.current_holdings[fill.symbol] += cost
         self.current_holdings["commission"] += fill.commission

@@ -18,7 +18,7 @@ class MovingAveragesCrossStrategy(Strategy):
     "Moving averages strategy (MAC) for short / long windows of 100 / 400 periods."
 
     def __init__(
-        self, bars: DataHandler, events: Event, short_window=100, long_window=400
+        self, bars: DataHandler, events: Event, short_window=12, long_window=20
     ):
         self.bars = bars
         self.symbol_list = self.bars.symbol_list
@@ -40,12 +40,12 @@ class MovingAveragesCrossStrategy(Strategy):
         """Compute signals based on the MAC"""
         if event.type == "MARKET":
             for symbol in self.symbol_list:
-                bars = self.bars.get_latest_bar_values(
-                    symbol, "adj_close", N=self.long_window
+                bars = self.bars._get_latest_bars_values(
+                    symbol, "Close", N=self.long_window
                 )
 
-            bar_date = self.bars.get_latest_bar_datetime(symbol)
-            if bars is not None and len(bar) > 0:
+            bar_date = self.bars._get_latest_bar_datetime(symbol)
+            if bars is not None and len(bars) > 0:
                 short_sma = np.mean(bars[-self.short_window :])
                 long_sma = np.mean(bars[-self.long_window :])
 

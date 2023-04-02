@@ -158,7 +158,7 @@ class HistoricCSVDataHandler(DataHandler):
         """ "Pushes the latest bar to the latest symbol data structure."""
         for symbol in self.symbol_list:
             try:
-                bar = next(self._get_latest_bar(symbol))
+                bar = next(self._get_new_bar(symbol))
             except StopIteration:
                 self._continue_backtest = False
             else:
