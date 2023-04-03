@@ -180,4 +180,11 @@ class Portfolio:
 
     def output_summary_with_statistics(self):
         """ "Create a list of summary statistics for the portfolio."""
-        pass
+        total_return = self.equity_curve["equity_curve"][-1]
+        returns = self.equity_curve["returns"]
+
+        # TODO Include sharpe ratio computation
+        stats = [
+            ("Total Returns {:.2f}".format((total_return - 1.0) * 100)),
+        ]
+        return stats
