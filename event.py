@@ -28,7 +28,7 @@ class SignalEvent(Event):
         symbol: str,
         datetime: str,
         signal_type: str,
-        strenght: str,
+        strength: str,
     ):
         self.type = "SIGNAL"
         self.strategy_id = strategy_id

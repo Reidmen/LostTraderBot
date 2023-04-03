@@ -17,7 +17,7 @@ class Backtest:
         symbol_list: list,
         initial_capital: float,
         start_date: date,
-        heartbeat: int,
+        heartbeat: float,
         data_handler_object: DataHandler,
         execution_handler: ExecutionHandler,
         strategy: Strategy,

@@ -6,7 +6,7 @@ from queue import Queue
 
 from strategy import Strategy
 from event import SignalEvent
-from backtest import BackTest
+from backtest import Backtest
 from data import DataHandler, HistoricCSVDataHandler
 from portfolio import PortfolioIntraFT
 from execution import SimulaterExecutionHandler

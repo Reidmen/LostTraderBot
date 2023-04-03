@@ -41,7 +41,7 @@ class Portfolio:
         )
 
         self.all_holdings = self.construct_all_holdings()
-        self.current_holdings = self.construct_current_holdings
+        self.current_holdings = self.construct_current_holdings()
 
     def construct_all_positions(self):
         """Constructs the positions list using the start_date
@@ -139,7 +139,7 @@ class Portfolio:
             self.update_holdings_from_fill(event)
 
     def generate_order_with_quantity(
-        self, signal: SignalEvent, quantity: int
+        self, signal: SignalEvent, market_quantity: int = 100
     ) -> OrderEvent:
         """Files an Order object with a constant quantity sizing, without
         risk management or position sizing considerations."""
