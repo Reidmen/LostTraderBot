@@ -1,0 +1,13 @@
+[project]
+name = "LostTraderBot"
+description = "TraderBot package"
+version = "0.1.0"
+authors = [
+    { name = "Reidmen Arostica", email = "r.rethmawn@gmail.com" }
+   ]
+dependencies = [
+    "numpy",
+    "pandas",
+    "yfinance"
+    ]
+

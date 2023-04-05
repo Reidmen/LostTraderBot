@@ -86,7 +86,7 @@ class Backtest:
                             self.execution_handler.execute_order(event)
                         elif event.type == "FILL":
                             self.fills += 1
-                            self.portfolio.update_fill(event)
+                            self.portfolio.update_using_fill_event(event)
 
             time.sleep(self.heartbeat)
 

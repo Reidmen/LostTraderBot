@@ -76,7 +76,7 @@ def data_scrapper(symbol: str) -> str:
     assert isinstance(symbol, str), "symbol must be str"
 
     Path("./datasets").mkdir(parents=True, exist_ok=True)
-    filepath = f"./datasets/dataset_{symbol}.csv"
+    filepath = f"./datasets/dataset_1h_{symbol}.csv"
     path = Path(filepath)
 
     if not path.is_file():
@@ -84,7 +84,7 @@ def data_scrapper(symbol: str) -> str:
         start_date = "2022-01-01"
         end_date = datetime.datetime.now().strftime("%Y-%m-%d")
         dataset_history = dataset_ticker.history(
-            start=start_date, end=end_date, interval="1d"
+            start=start_date, end=end_date, interval="1h"
         )
         dataset_history.to_csv(filepath)
         print(f"head of dataset history for {symbol}")

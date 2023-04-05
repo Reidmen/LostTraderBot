@@ -81,11 +81,13 @@ class HistoricCSVDataHandler(DataHandler):
         # it requires reformatting the database
         comb_index = None
         for s in self.symbol_list:
-            self.symbol_data[s] = pd.io.parsers.read_csv(
-                str(Path(self.csv_dir)),
-                parse_dates=True,
-                index_col='Date'
-            )
+            try:
+                self.symbol_data[s] = pd.io.parsers.read_csv(
+                    str(Path(self.csv_dir)), parse_dates=True, index_col="Datetime"
+                )
+            except ValueError:
+                raise Exception("index column should have 'Datetime' format")
+
             print(self.symbol_data[s].head())
 
             if comb_index is None:

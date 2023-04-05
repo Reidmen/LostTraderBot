@@ -113,7 +113,7 @@ class Portfolio:
         if fill.direction == "SELL":
             fill_direction = -1
 
-        self.current_positions[fill.symbol] += fill_direction + fill.quantity
+        self.current_positions[fill.symbol] += fill_direction * fill.quantity
 
     def update_holdings_from_fill(self, fill: FillEvent):
         """Takes a Fill object and updates the holdings matrix to
@@ -124,12 +124,12 @@ class Portfolio:
         if fill.direction == "SELL":
             fill_direction = -1
 
-        fill_cost = self.bars._get_latest_bar_value(fill.symbol, "adj_close")
+        fill_cost = self.bars._get_latest_bar_value(fill.symbol, "Close")
         cost = fill_direction * fill_cost * fill.quantity
         self.current_holdings[fill.symbol] += cost
         self.current_holdings["commission"] += fill.commission
-        self.current_holdings["cash"] -= cost + fill.commission
-        self.current_holdings["total"] -= cost + fill.commission
+        self.current_holdings["cash"] -= (cost + fill.commission)
+        self.current_holdings["total"] -= (cost + fill.commission)
 
     def update_using_fill_event(self, event: FillEvent):
         """Updates the portfolio current positions and holdings
