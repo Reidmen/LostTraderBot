@@ -7,7 +7,7 @@ import pandas as pd
 from data import DataHandler
 from event import Event, FillEvent, OrderEvent, SignalEvent
 
-# from performance import create_sharpe_ratio
+from performance import create_sharpe_ratio, create_drawdowns
 
 
 class Portfolio:
@@ -139,7 +139,7 @@ class Portfolio:
             self.update_holdings_from_fill(event)
 
     def generate_order_with_quantity(
-        self, signal: SignalEvent, market_quantity: int = 100
+        self, signal: SignalEvent, market_quantity: int = 10
     ) -> OrderEvent:
         """Files an Order object with a constant quantity sizing, without
         risk management or position sizing considerations."""
@@ -149,7 +149,7 @@ class Portfolio:
         strength = signal.strength
 
         current_quantity = self.current_positions[symbol]
-        order_type = "MKT"
+        order_type = "MARKET"
 
         if direction == "LONG" and current_quantity == 0:
             order = OrderEvent(symbol, order_type, market_quantity, "BUY")
@@ -182,9 +182,16 @@ class Portfolio:
         """ "Create a list of summary statistics for the portfolio."""
         total_return = self.equity_curve["equity_curve"][-1]
         returns = self.equity_curve["returns"]
+        profit_and_losses = self.equity_curve['equity_curve']
 
+        sharpe_ratio = create_sharpe_ratio(returns, periods=252*60*6.5)
+        drawdown, max_drawdown, duration = create_drawdowns(profit_and_losses)
+        self.equity_curve['drawdown'] = drawdown
         # TODO Include sharpe ratio computation
         stats = [
             ("Total Returns {:.2f}".format((total_return - 1.0) * 100)),
+            ("Sharpe Ratio {:.2f}".format(sharpe_ratio)),
+            ("Max Drawdown {:.2f}".format(max_drawdown)),
+            ("Drawdown Duration {:.2f}".format(duration)),
         ]
         return stats
