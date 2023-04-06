@@ -139,7 +139,7 @@ class Portfolio:
             self.update_holdings_from_fill(event)
 
     def generate_order_with_quantity(
-        self, signal: SignalEvent, market_quantity: int = 10
+        self, signal: SignalEvent, market_quantity: int = 100
     ) -> OrderEvent:
         """Files an Order object with a constant quantity sizing, without
         risk management or position sizing considerations."""

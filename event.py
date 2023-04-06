@@ -1,3 +1,5 @@
+from typing import Union
+
 class Event:
     """Event is base class providing interface for all other events in the trading infrastructure."""
 
@@ -72,15 +74,16 @@ class FillEvent(Event):
         exchange: str,
         quantity: int,
         direction: str,
-        fill_cost: float,
+        fill_cost: Union[float, None],
         commission: float = None,
     ):
         self.type = "FILL"
         self.timeindex = timeindex
         self.symbol = symbol
         self.exchange = exchange
+        self.quantity = quantity
         self.direction = direction
-        self.fill_costs = fill_costs
+        self.fill_cost = fill_cost
         if commission is None:
             self.commission = self.compute_ib_commission()
         else:
