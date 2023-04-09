@@ -1,3 +1,7 @@
+'''
+Author: Reidmen Arostica <r.rethmawn@gmail.com>
+Date: 04-09-2023
+'''
 from abc import ABC, abstractmethod
 from typing import List
 from pathlib import Path

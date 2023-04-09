@@ -1,3 +1,7 @@
+'''
+Author: Reidmen Arostica <r.rethmawn@gmail.com>
+Date: 04-09-2023
+'''
 import queue
 import time
 from datetime import date
