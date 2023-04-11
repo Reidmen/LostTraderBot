@@ -9,7 +9,7 @@ import yfinance as yf
 from strategy import Strategy
 from event import Event, MarketEvent, SignalEvent
 from backtest import Backtest
-from data import DataHandler, DataHandler, HistoricCSVDataHandler
+from data import DataHandler, HistoricCSVDataHandler
 from execution import SimulatedExecutionHandler
 from portfolio import Portfolio
 
