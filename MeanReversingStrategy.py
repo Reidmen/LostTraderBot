@@ -1,22 +1,22 @@
 import datetime
-import numpy as np
-import pandas as pd
-
+import statsmodels.api as sm
+import yfinance as yf
+from pathlib import Path
 from queue import Queue
 
 from strategy import Strategy
 from event import SignalEvent
 from backtest import Backtest
 from data import DataHandler, HistoricCSVDataHandler
-from portfolio import PortfolioIntraFT
-from execution import SimulaterExecutionHandler
+from execution import SimulatedExecutionHandler
+from portfolio import Portfolio
 
 
 class OLSMeanReversingStrategy(Strategy):
     def __init__(
         self,
         bars: DataHandler,
-        events: Queue[Event],
+        events: Queue,
         ols_window: int = 100,
         zscore_low: float = 0.5,
         zscore_high: float = 3.0,
@@ -32,6 +32,7 @@ class OLSMeanReversingStrategy(Strategy):
         self.symbol_pair = symbol_pair
         self.datetime = datetime.datetime.utcnow()
 
+        self.hedge_ratio = 0.0
         self.long_market = False
         self.short_market = False
 
@@ -68,11 +69,9 @@ class OLSMeanReversingStrategy(Strategy):
     def compute_signals_for_pairs(self):
         """Computes a new set of signals based on the mean reversion
         strategy."""
-        # Uses OLS for the hedge ration, (try CADF)
-        y = self.bars.get_latest_bars_values(
-                self.pair[0], "close", N=self.ols_window)
-        x = self.bars.get_latest_bars_values(
-                self.pair[1], "close", N=self.ols_window)
+        # TODO: uses OLS for the hedge ration, (try CADF)
+        y = self.bars.get_latest_bars_values(self.pair[0], "Close", N=self.ols_window)
+        x = self.bars.get_latest_bars_values(self.pair[1], "Close", N=self.ols_window)
 
         if y is not None and x is not None:
             # check if all window periods are available
@@ -91,3 +90,49 @@ class OLSMeanReversingStrategy(Strategy):
     def compute_signals(self, event: SignalEvent):
         if event.type == "MARKET":
             self.compute_signals_for_pair()
+
+
+def data_scrapper(symbol: str) -> str:
+    """Stock price scrapper using yfinance.
+
+    It creates a new csv dataset if not found in
+    the relative path.
+    """
+    assert isinstance(symbol, str), "symbol must be str"
+
+    Path("./datasets").mkdir(parents=True, exist_ok=True)
+    filepath = f"./datasets/dataset_1h_{symbol}.csv"
+    path = Path(filepath)
+
+    if not path.is_file():
+        dataset_ticker = yf.Ticker(symbol)
+        start_date = "2022-01-01"
+        end_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        dataset_history = dataset_ticker.history(
+            start=start_date, end=end_date, interval="1h"
+        )
+        dataset_history.to_csv(filepath)
+        print(f"head of dataset history for {symbol}")
+        print(dataset_history.head())
+    return filepath
+
+
+if __name__ == "__main__":
+    symbol_pair = ("AREX", "WLL")
+    csv_dir = [data_scrapper(symbol) for symbol in symbol_pair]
+    initial_capital = 100_000
+    heartbeat = 0.0
+    start_date = datetime.datetime(2022, 1, 1, 0, 0, 0)
+
+    backtest = Backtest(
+        csv_dir,
+        symbol_pair,
+        initial_capital,
+        start_date,
+        heartbeat,
+        HistoricCSVDataHandler,
+        SimulatedExecutionHandler,
+        OLSMeanReversingStrategy,
+        Portfolio,
+    )
+    backtest.simulate_trading()
