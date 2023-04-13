@@ -7,8 +7,6 @@ The lost bot looking for a new future!
 
 # TODO (Event Base backend)
 - Add dependencies and export them as requirements `pip freeze` sort of thing
-- Include configuration files (toml, etc)
-- Restructure into the a standard Python library: `src`, `examples`, `test`
 - Add unit tests
 
 # TODO (Strategies)
