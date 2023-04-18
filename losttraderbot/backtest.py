@@ -5,10 +5,10 @@ Date: 04-09-2023
 import queue
 import time
 from datetime import date
-from data import DataHandler
-from execution import ExecutionHandler
-from strategy import Strategy
-from portfolio import Portfolio
+from .data import DataHandler
+from .execution import ExecutionHandler
+from .strategy import Strategy
+from .portfolio import Portfolio
 
 
 class Backtest:

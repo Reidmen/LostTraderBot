@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 import datetime
 import queue
 
-from event import FillEvent, OrderEvent
+from .event import FillEvent, OrderEvent
 
 
 class ExecutionHandler(ABC):

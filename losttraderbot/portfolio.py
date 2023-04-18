@@ -8,10 +8,10 @@ import queue
 
 import numpy as np
 import pandas as pd
-from data import DataHandler
-from event import Event, FillEvent, OrderEvent, SignalEvent
+from .data import DataHandler
+from .event import Event, FillEvent, OrderEvent, SignalEvent
 
-from performance import create_sharpe_ratio, create_drawdowns
+from .performance import create_sharpe_ratio, create_drawdowns
 
 
 class Portfolio:

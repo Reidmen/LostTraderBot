@@ -6,12 +6,12 @@ import pandas as pd
 import statsmodels.api as sm
 import yfinance as yf
 
-from strategy import Strategy
-from event import Event, MarketEvent, SignalEvent
-from backtest import Backtest
-from data import DataHandler, HistoricCSVDataHandler
-from execution import SimulatedExecutionHandler
-from portfolio import Portfolio
+from losttraderbot.strategy import Strategy
+from losttraderbot.event import Event, MarketEvent, SignalEvent
+from losttraderbot.backtest import Backtest
+from losttraderbot.data import DataHandler, HistoricCSVDataHandler
+from losttraderbot.execution import SimulatedExecutionHandler
+from losttraderbot.portfolio import Portfolio
 
 
 class MovingAveragesCrossStrategy(Strategy):
