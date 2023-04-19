@@ -17,6 +17,19 @@ The lost bot looking for a new future!
 - Crossing the book dynamics
 - Manage inventory in general 
 
+## Instalation 
+To use this library, install it as ant usual PIPy package: 
+
+```shell
+pip3 install -e .  
+```
+
+To install it with requirements (using `requirements.txt`) use:
+
+```shell
+pip3 install --requirement requirements.txt -e .
+```
+
 # Python style
 - [Black](https://github.com/psf/black)
 - [PEP8](https://peps.python.org/pep-0008/)
