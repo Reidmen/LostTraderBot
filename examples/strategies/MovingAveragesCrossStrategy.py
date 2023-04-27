@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 import yfinance as yf
+import logging
 
 from losttraderbot.strategy import Strategy
 from losttraderbot.event import Event, MarketEvent, SignalEvent
@@ -13,6 +14,17 @@ from losttraderbot.data import DataHandler, HistoricCSVDataHandler
 from losttraderbot.execution import SimulatedExecutionHandler
 from losttraderbot.portfolio import Portfolio
 
+# create logger, console and add handler
+#logger_name = Path(__file__).stem
+logger_name = Path("./logfiles/trader_events.log").mkdir(parents=True, exist_ok=True)
+logger_formatter = logging.Formatter(fmt=' %(name)s :: %(levelname)-8s :: %(message)s')
+logger = logging.getLogger(logger_name)
+logger.setLevel(logging.INFO)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(logger_formatter)
+
+logger.addHandler(console_handler)
 
 class MovingAveragesCrossStrategy(Strategy):
     "Moving averages strategy (MAC) for short / long windows of 100 / 400 periods."
@@ -53,14 +65,14 @@ class MovingAveragesCrossStrategy(Strategy):
                 sig_dir = ""
 
                 if long_sma < short_sma and self.bought[symbol] == "OUT":
-                    print("LONG : ", bar_date)
+                    logger.info("LONG : ", bar_date)
                     sig_dir = "LONG"
                     signal = SignalEvent(1, symbol, dt, sig_dir, 1.0)
                     self.events.put(signal)
                     self.bought[symbol] = "LONG"
 
                 elif short_sma < long_sma and self.bought[symbol] == "LONG":
-                    print("SHORT: ", bar_date)
+                    logger.info("SHORT: ", bar_date)
                     sig_dir = "EXIT"
                     signal = SignalEvent(1, symbol, dt, sig_dir, 1.0)
                     self.events.put(signal)
@@ -87,7 +99,7 @@ def data_scrapper(symbol: str) -> str:
             start=start_date, end=end_date, interval="1h"
         )
         dataset_history.to_csv(filepath)
-        print(f"head of dataset history for {symbol}")
+        logger.info(f"head of dataset history for {symbol}")
         print(dataset_history.head())
     return filepath
 
