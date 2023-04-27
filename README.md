@@ -1,4 +1,4 @@
-![CodeBase](https://progress-bar.dev/15/?title=Codebase)
+![CodeBase](https://progress-bar.dev/17/?title=Codebase)
 ![MIT](https://img.shields.io/badge/License-MIT-green)
 ![Black](https://img.shields.io/badge/Style-Black-black)
 # LostTraderBot
