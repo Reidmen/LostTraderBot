@@ -15,15 +15,24 @@ from losttraderbot.execution import SimulatedExecutionHandler
 from losttraderbot.portfolio import Portfolio
 
 # create logger, console and add handler
-#logger_name = Path(__file__).stem
-logger_name = Path("./logfiles/trader_events.log").mkdir(parents=True, exist_ok=True)
-logger_formatter = logging.Formatter(fmt=' %(name)s :: %(levelname)-8s :: %(message)s')
-logger = logging.getLogger(logger_name)
-logger.setLevel(logging.INFO)
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
-console_handler.setFormatter(logger_formatter)
+# logger_name = Path(__file__).stem
+path_to_file = Path("./logfiles")
+path_to_file.mkdir(parents=True, exist_ok=True)
+name = path_to_file.joinpath("trader_events.log")
+formatter = logging.Formatter(fmt=" %(name)s :: %(levelname)-8s :: %(message)s")
 
+logger = logging.getLogger("Trader")
+logger.setLevel(logging.INFO)
+
+file_handler = logging.FileHandler(str(name))
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(formatter)
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+console_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
 class MovingAveragesCrossStrategy(Strategy):
@@ -65,14 +74,14 @@ class MovingAveragesCrossStrategy(Strategy):
                 sig_dir = ""
 
                 if long_sma < short_sma and self.bought[symbol] == "OUT":
-                    logger.info("LONG : ", bar_date)
+                    logger.info(f"LONG : {bar_date} ")
                     sig_dir = "LONG"
                     signal = SignalEvent(1, symbol, dt, sig_dir, 1.0)
                     self.events.put(signal)
                     self.bought[symbol] = "LONG"
 
                 elif short_sma < long_sma and self.bought[symbol] == "LONG":
-                    logger.info("SHORT: ", bar_date)
+                    logger.info(f"SHORT: {bar_date}")
                     sig_dir = "EXIT"
                     signal = SignalEvent(1, symbol, dt, sig_dir, 1.0)
                     self.events.put(signal)
