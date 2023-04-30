@@ -1,7 +1,7 @@
-'''
+"""
 Author: Reidmen Arostica <r.rethmawn@gmail.com>
 Date: 04-09-2023
-'''
+"""
 import datetime
 from math import floor
 import queue
@@ -132,8 +132,8 @@ class Portfolio:
         cost = fill_direction * fill_cost * fill.quantity
         self.current_holdings[fill.symbol] += cost
         self.current_holdings["commission"] += fill.commission
-        self.current_holdings["cash"] -= (cost + fill.commission)
-        self.current_holdings["total"] -= (cost + fill.commission)
+        self.current_holdings["cash"] -= cost + fill.commission
+        self.current_holdings["total"] -= cost + fill.commission
 
     def update_using_fill_event(self, event: FillEvent):
         """Updates the portfolio current positions and holdings
@@ -186,11 +186,11 @@ class Portfolio:
         """ "Create a list of summary statistics for the portfolio."""
         total_return = self.equity_curve["equity_curve"][-1]
         returns = self.equity_curve["returns"]
-        profit_and_losses = self.equity_curve['equity_curve']
+        profit_and_losses = self.equity_curve["equity_curve"]
 
-        sharpe_ratio = create_sharpe_ratio(returns, periods=252*60*6.5)
+        sharpe_ratio = create_sharpe_ratio(returns, periods=252 * 60 * 6.5)
         drawdown, max_drawdown, duration = create_drawdowns(profit_and_losses)
-        self.equity_curve['drawdown'] = drawdown
+        self.equity_curve["drawdown"] = drawdown
         # TODO Include sharpe ratio computation
         stats = [
             ("Total Returns {:.2f}".format((total_return - 1.0) * 100)),
