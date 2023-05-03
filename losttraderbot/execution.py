@@ -23,7 +23,7 @@ class ExecutionHandler(ABC):
 
 
 class SimulatedExecutionHandler(ExecutionHandler):
-    def __init__(self, events: Union[FillEvent, OrderEvent]):
+    def __init__(self, events: Union[FillEvent, OrderEvent, queue.Queue]):
         """Initializes the handler, setting the event queues up
         internally."""
         self.events = events

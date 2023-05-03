@@ -5,7 +5,7 @@ Date: 04-09-2023
 import datetime
 from math import floor
 import queue
-
+from typing import List, Tuple
 import numpy as np
 import pandas as pd
 from .data import DataHandler
@@ -23,7 +23,11 @@ class Portfolio:
     """
 
     def __init__(
-        self, bars: DataHandler, events: Event, start_date: str, initial_capital: float
+        self,
+        bars: DataHandler,
+        events: queue.Queue,
+        start_date: str,
+        initial_capital: float,
     ):
         """
         Parameters
@@ -33,7 +37,7 @@ class Portfolio:
             initial_capital: in USD
         """
         self.bars = bars
-        self.events = events
+        self.events: queue.Queue = events
         self.symbol_list = self.bars.symbol_list
         self.start_date = start_date
         self.initial_capital = initial_capital
@@ -175,14 +179,14 @@ class Portfolio:
 
     def create_equity_curve_dataframe(self) -> None:
         """Creates a dataframe containing the equity curve and returns."""
-        curve = pd.DataFrame(self.all_holdings)
+        curve: pd.DataFrame = pd.DataFrame(self.all_holdings)
         curve.set_index("datetime", inplace=True)
         curve["returns"] = curve["total"].pct_change()
         curve["equity_curve"] = (1.0 + curve["returns"]).cumprod()
 
-        self.equity_curve = curve
+        self.equity_curve: pd.DataFrame = curve
 
-    def output_summary_with_statistics(self):
+    def output_summary_with_statistics(self) -> List[str]:
         """ "Create a list of summary statistics for the portfolio."""
         total_return = self.equity_curve["equity_curve"][-1]
         returns = self.equity_curve["returns"]
@@ -192,7 +196,7 @@ class Portfolio:
         drawdown, max_drawdown, duration = create_drawdowns(profit_and_losses)
         self.equity_curve["drawdown"] = drawdown
         # TODO Include sharpe ratio computation
-        stats = [
+        stats: List[str] = [
             ("Total Returns {:.2f}".format((total_return - 1.0) * 100)),
             ("Sharpe Ratio {:.2f}".format(sharpe_ratio)),
             ("Max Drawdown {:.2f}".format(max_drawdown)),

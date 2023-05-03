@@ -16,6 +16,7 @@ from losttraderbot.portfolio import Portfolio
 
 # create logger, console and add handler
 # logger_name = Path(__file__).stem
+# TODO Move logger creation into a dependency to be loaded
 path_to_file = Path("./logfiles")
 path_to_file.mkdir(parents=True, exist_ok=True)
 name = path_to_file.joinpath("trader_events.log")
@@ -34,6 +35,7 @@ console_handler.setFormatter(formatter)
 
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
+
 
 class MovingAveragesCrossStrategy(Strategy):
     "Moving averages strategy (MAC) for short / long windows of 100 / 400 periods."
@@ -67,8 +69,8 @@ class MovingAveragesCrossStrategy(Strategy):
 
             bar_date = self.bars._get_latest_bar_datetime(symbol)
             if bars is not None and len(bars) > 0:
-                short_sma = np.mean(bars[-self.short_window :])
-                long_sma = np.mean(bars[-self.long_window :])
+                short_sma = np.mean(bars[-self.short_window:])
+                long_sma = np.mean(bars[-self.long_window:])
 
                 dt = datetime.datetime.utcnow()
                 sig_dir = ""
