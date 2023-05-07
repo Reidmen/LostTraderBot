@@ -9,6 +9,7 @@ from .data import DataHandler
 from .execution import ExecutionHandler
 from .strategy import Strategy
 from .portfolio import Portfolio
+from typing import Type
 
 
 class Backtest:
@@ -22,10 +23,10 @@ class Backtest:
         initial_capital: float,
         start_date: date,
         heartbeat: float,
-        data_handler_object: DataHandler,
-        execution_handler: ExecutionHandler,
-        strategy: Strategy,
-        portfolio: Portfolio,
+        data_handler_object: Type[DataHandler],
+        execution_handler: Type[ExecutionHandler],
+        strategy: Type[Strategy],
+        portfolio: Type[Portfolio],
     ):
         self.csv_directory = csv_directory
         self.symbol_list = symbol_list

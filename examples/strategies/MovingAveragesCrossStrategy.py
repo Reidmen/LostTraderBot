@@ -20,7 +20,7 @@ from losttraderbot.portfolio import Portfolio
 path_to_file = Path("./logfiles")
 path_to_file.mkdir(parents=True, exist_ok=True)
 name = path_to_file.joinpath("trader_events.log")
-formatter = logging.Formatter(fmt=" %(name)s :: %(levelname)-8s :: %(message)s")
+formatter = logging.Formatter(fmt="%(name)s :: %(levelname)-8s :: %(message)s")
 
 logger = logging.getLogger("Trader")
 logger.setLevel(logging.INFO)
@@ -38,7 +38,8 @@ logger.addHandler(console_handler)
 
 
 class MovingAveragesCrossStrategy(Strategy):
-    "Moving averages strategy (MAC) for short / long windows of 100 / 400 periods."
+    """Moving averages strategy (MAC) for short / long windows
+    of 100 / 400 periods."""
 
     def __init__(
         self, bars: DataHandler, events: Event, short_window=12, long_window=20
@@ -69,8 +70,8 @@ class MovingAveragesCrossStrategy(Strategy):
 
             bar_date = self.bars._get_latest_bar_datetime(symbol)
             if bars is not None and len(bars) > 0:
-                short_sma = np.mean(bars[-self.short_window:])
-                long_sma = np.mean(bars[-self.long_window:])
+                short_sma = np.mean(bars[-self.short_window :])
+                long_sma = np.mean(bars[-self.long_window :])
 
                 dt = datetime.datetime.utcnow()
                 sig_dir = ""

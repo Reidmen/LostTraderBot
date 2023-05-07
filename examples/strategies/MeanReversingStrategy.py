@@ -1,15 +1,35 @@
 import datetime
 import statsmodels.api as sm
 import yfinance as yf
+import logging
 from pathlib import Path
 from queue import Queue
 
-from strategy import Strategy
-from event import SignalEvent
-from backtest import Backtest
-from data import DataHandler, HistoricCSVDataHandler
-from execution import SimulatedExecutionHandler
-from portfolio import Portfolio
+from losttraderbot.strategy import Strategy
+from losttraderbot.event import SignalEvent
+from losttraderbot.backtest import Backtest
+from losttraderbot.data import DataHandler, HistoricCSVDataHandler
+from losttraderbot.execution import SimulatedExecutionHandler
+from losttraderbot.portfolio import Portfolio
+
+path_to_file = Path("./logfiles")
+path_to_file.mkdir(parents=True, exist_ok=True)
+name = path_to_file.joinpath("trader_events.log")
+formatter = logging.Formatter(fmt=" %(name)s :: %(levelname)-8s :: %(message)s")
+
+logger = logging.getLogger("Trader")
+logger.setLevel(logging.INFO)
+
+file_handler = logging.FileHandler(str(name))
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(formatter)
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+console_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
 
 
 class OLSMeanReversingStrategy(Strategy):
