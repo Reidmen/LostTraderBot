@@ -2,14 +2,15 @@
 Author: Reidmen Arostica <r.rethmawn@gmail.com>
 Date: 04-09-2023
 '''
+from datetime import date
 import queue
 import time
-from datetime import date
+from typing import List, Type, Union
+
 from .data import DataHandler
 from .execution import ExecutionHandler
-from .strategy import Strategy
 from .portfolio import Portfolio
-from typing import Type
+from .strategy import Strategy
 
 
 class Backtest:
@@ -18,9 +19,9 @@ class Backtest:
 
     def __init__(
         self,
-        csv_directory: str,
-        symbol_list: list,
-        initial_capital: float,
+        csv_directory: List[str],
+        symbol_list: List[str],
+        initial_capital: List[float],
         start_date: date,
         heartbeat: float,
         data_handler_object: Type[DataHandler],
