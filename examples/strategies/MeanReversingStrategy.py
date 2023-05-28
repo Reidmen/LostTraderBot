@@ -1,20 +1,22 @@
 import datetime
-import statsmodels.api as sm
-import yfinance as yf
 import logging
 from pathlib import Path
 from queue import Queue
+from typing import Union
 
-from losttraderbot.strategy import Strategy
-from losttraderbot.event import SignalEvent
+import statsmodels.api as sm
+import yfinance as yf
+
 from losttraderbot.backtest import Backtest
 from losttraderbot.data import DataHandler, HistoricCSVDataHandler
+from losttraderbot.event import SignalEvent
 from losttraderbot.execution import SimulatedExecutionHandler
 from losttraderbot.portfolio import Portfolio
+from losttraderbot.strategy import Strategy
 
 path_to_file = Path("./logfiles")
 path_to_file.mkdir(parents=True, exist_ok=True)
-name = path_to_file.joinpath("trader_events.log")
+name = path_to_file.joinpath(f"{Path(__file__).stem}.log")
 formatter = logging.Formatter(fmt=" %(name)s :: %(levelname)-8s :: %(message)s")
 
 logger = logging.getLogger("Trader")
@@ -35,12 +37,12 @@ logger.addHandler(console_handler)
 class OLSMeanReversingStrategy(Strategy):
     def __init__(
         self,
-        bars: DataHandler,
+        bars: Union[DataHandler, HistoricCSVDataHandler],
         events: Queue,
         ols_window: int = 100,
         zscore_low: float = 0.5,
         zscore_high: float = 3.0,
-        symbol_pair: tuple = ("AREX", "WLL"),
+        symbol_pair: Union[tuple, list] = ["MSFT", "GOOG"],
     ):
         self.bars = bars
         self.symbol_list = self.bars.symbol_list
@@ -90,8 +92,8 @@ class OLSMeanReversingStrategy(Strategy):
         """Computes a new set of signals based on the mean reversion
         strategy."""
         # TODO: uses OLS for the hedge ration, (try CADF)
-        y = self.bars.get_latest_bars_values(self.pair[0], "Close", N=self.ols_window)
-        x = self.bars.get_latest_bars_values(self.pair[1], "Close", N=self.ols_window)
+        y = self.bars._get_latest_bars_values(self.symbol_pair[0], "Close", N=self.ols_window)
+        x = self.bars._get_latest_bars_values(self.symbol_pair[1], "Close", N=self.ols_window)
 
         if y is not None and x is not None:
             # check if all window periods are available
@@ -102,14 +104,14 @@ class OLSMeanReversingStrategy(Strategy):
                 zscore_last = ((spread - spread.mean()) / spread.std())[-1]
 
                 # compute signals and add to the events queue
-                y_signal, x_signal = self.compute_xy_signal(zscore_last)
+                y_signal, x_signal = self.compute_xy_signals(zscore_last)
                 if y_signal is not None and x_signal is not None:
                     self.events.put(y_signal)
                     self.events.put(x_signal)
 
     def compute_signals(self, event: SignalEvent):
         if event.type == "MARKET":
-            self.compute_signals_for_pair()
+            self.compute_signals_for_pairs()
 
 
 def data_scrapper(symbol: str) -> str:
@@ -138,9 +140,9 @@ def data_scrapper(symbol: str) -> str:
 
 
 if __name__ == "__main__":
-    symbol_pair = ("AREX", "WLL")
+    symbol_pair = ["MSFT", "GOOG"]
     csv_dir = [data_scrapper(symbol) for symbol in symbol_pair]
-    initial_capital = 100_000
+    initial_capital = [100000, 100000]
     heartbeat = 0.0
     start_date = datetime.datetime(2022, 1, 1, 0, 0, 0)
 
