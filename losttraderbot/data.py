@@ -1,12 +1,13 @@
-'''
+"""
 Author: Reidmen Arostica <r.rethmawn@gmail.com>
 Date: 04-09-2023
-'''
+"""
 from abc import ABC, abstractmethod
-from typing import List
-from pathlib import Path
 import datetime
-import os, os.path
+import os
+import os.path
+from pathlib import Path
+from typing import List, Type
 
 import numpy as np
 import pandas as pd
@@ -67,11 +68,11 @@ class HistoricCSVDataHandler(DataHandler):
     latest bar, analogous to a live interface.
     """
 
-    def __init__(self, events: List[Event], csv_dir: str, symbol_list: str):
+    def __init__(self, events: Event, csv_dir: List[str], symbol_list: List[str]):
         """Initializes the historic data handler"""
-        self.events = events
-        self.csv_dir = csv_dir
-        self.symbol_list = symbol_list
+        self.events: Event = events
+        self.csv_dir: List[str] = csv_dir
+        self.symbol_list: List[str] = symbol_list
 
         self.symbol_data = {}
         self.latest_symbol_data = {}
@@ -79,32 +80,34 @@ class HistoricCSVDataHandler(DataHandler):
 
         self._open_convert_csv()
 
-    def _open_convert_csv(self):
+    def _open_convert_csv(self) -> None:
         """Here we assume the data is taken from yfinance"""
         # TODO Include different sources
         # it requires reformatting the database
         comb_index = None
-        for s in self.symbol_list:
+        for symbol, directory in zip(self.symbol_list, self.csv_dir):
             try:
-                self.symbol_data[s] = pd.io.parsers.read_csv(
-                    str(Path(self.csv_dir)), parse_dates=True, index_col="Datetime"
+                self.symbol_data[symbol] = pd.io.parsers.read_csv(
+                    str(Path(directory)), parse_dates=True, index_col="Datetime"
                 )
             except ValueError:
                 raise Exception("index column should have 'Datetime' format")
 
-            print(self.symbol_data[s].head())
+            print(self.symbol_data[symbol].head())
 
             if comb_index is None:
-                comb_index = self.symbol_data[s].index
+                comb_index = self.symbol_data[symbol].index
 
             else:
-                comb_index.union(self.symbol_data[s].index)
+                comb_index.union(self.symbol_data[symbol].index)
 
-            self.latest_symbol_data[s] = []
+            self.latest_symbol_data[symbol] = []
 
-        for s in self.symbol_list:
-            self.symbol_data[s] = (
-                self.symbol_data[s].reindex(index=comb_index, method="pad").iterrows()
+        for symbol in self.symbol_list:
+            self.symbol_data[symbol] = (
+                self.symbol_data[symbol]
+                .reindex(index=comb_index, method="pad")
+                .iterrows()
             )
 
     def _get_new_bar(self, symbol):
@@ -112,7 +115,7 @@ class HistoricCSVDataHandler(DataHandler):
         for b in self.symbol_data[symbol]:
             yield b
 
-    def _get_latest_bar(self, symbol):
+    def _get_latest_bar(self, symbol) -> None:
         """Returns the last bar from the latest symbol list."""
         try:
             bars_list = self.latest_symbol_data[symbol]

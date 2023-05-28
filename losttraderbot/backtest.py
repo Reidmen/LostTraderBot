@@ -1,11 +1,11 @@
-'''
+"""
 Author: Reidmen Arostica <r.rethmawn@gmail.com>
 Date: 04-09-2023
-'''
+"""
 from datetime import date
 import queue
 import time
-from typing import List, Type, Union
+from typing import List, Type
 
 from .data import DataHandler
 from .execution import ExecutionHandler
@@ -34,7 +34,7 @@ class Backtest:
         self.initial_capital = initial_capital
         self.heartbeat = heartbeat
         self.start_date = start_date
-        self.events = queue.Queue()
+        self.events: queue.Queue = queue.Queue()
 
         self._generate_trading_instances(
             data_handler_object, execution_handler, strategy, portfolio
