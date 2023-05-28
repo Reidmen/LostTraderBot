@@ -6,8 +6,11 @@ The lost bot looking for a new future!
 
 
 # TODO (Event Base backend)
-- Add dependencies and export them as requirements `pip freeze` sort of thing
-- Add unit tests
+- Add unit tests per each file.
+- Add more strategies, include extra datasets
+- Fix typing issues
+- Speed up using pybind. Aiming at event testing of around ~100 ms max.
+- Introduce complete backtesting in c++ (ideally, std=c++17/20).
 
 # TODO (Strategies)
 - Add multiple indicators: Hurst exponent, Ichimoku cloud, SuperTrend, etc.
@@ -18,13 +21,23 @@ The lost bot looking for a new future!
 - Manage inventory in general 
 
 ## Instalation 
-To use this library, install it as ant usual PIPy package: 
+To use this library, install it as a PIPy package: 
 
 ```shell
 pip3 install -e .  
 ```
 
-To install it with requirements (using `requirements.txt`) use:
+## Run Example
+In `examples/strategies/` you can find existing strategies. To execute `MovingAveragesCrossStrategy`, use:
+```shell
+cd examples/
+python3 strategies/MovingAveragesCrossStrategy.py
+```
+
+Results will be stored in `logfiles` with all the events.
+
+## Requirements
+To install it with requirements for testing and development (using `requirements.txt`) use:
 
 ```shell
 pip3 install --requirement requirements.txt -e .
@@ -40,7 +53,7 @@ pip3 install --requirement requirements.txt -e .
 
 
 # Contribution
-- Currently working alone on the project, if someone wants to contibute, feel free to raise issues!
+- Currently working alone on the project, if someone wants to contibute, feel free to raise issues and errors.
 - Long term is to make it a long standing - fully operative project. I'm willing to risk a few hundreds (EUR)! 
 
 Under MIT License
