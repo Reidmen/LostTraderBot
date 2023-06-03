@@ -1,18 +1,18 @@
 import datetime
+import logging
 import os
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
 import yfinance as yf
-import logging
 
-from losttraderbot.strategy import Strategy
-from losttraderbot.event import Event, MarketEvent, SignalEvent
 from losttraderbot.backtest import Backtest
 from losttraderbot.data import DataHandler, HistoricCSVDataHandler
+from losttraderbot.event import Event, MarketEvent, SignalEvent
 from losttraderbot.execution import SimulatedExecutionHandler
 from losttraderbot.portfolio import Portfolio
+from losttraderbot.strategy import Strategy
 
 # create logger, console and add handler
 path_to_file = Path("./logfiles")
