@@ -5,7 +5,7 @@ Date: 04-09-2023
 from datetime import date
 import queue
 import time
-from typing import List, Type
+from typing import Callable, List, Type
 
 from .data import DataHandler
 from .execution import ExecutionHandler
@@ -21,7 +21,7 @@ class Backtest:
         self,
         csv_directory: List[str],
         symbol_list: List[str],
-        initial_capital: List[float],
+        initial_capital: float,
         start_date: date,
         heartbeat: float,
         data_handler_object: Type[DataHandler],

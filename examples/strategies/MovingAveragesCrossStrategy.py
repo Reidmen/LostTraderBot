@@ -15,11 +15,9 @@ from losttraderbot.execution import SimulatedExecutionHandler
 from losttraderbot.portfolio import Portfolio
 
 # create logger, console and add handler
-# logger_name = Path(__file__).stem
-# TODO Move logger creation into a dependency to be loaded
 path_to_file = Path("./logfiles")
 path_to_file.mkdir(parents=True, exist_ok=True)
-name = path_to_file.joinpath("trader_events.log")
+name = path_to_file.joinpath(f"{str(Path(__file__).stem)}.log")
 formatter = logging.Formatter(fmt="%(name)s :: %(levelname)-8s :: %(message)s")
 
 logger = logging.getLogger("Trader")
@@ -111,7 +109,7 @@ def data_scrapper(symbol: str) -> str:
             start=start_date, end=end_date, interval="1h"
         )
         dataset_history.to_csv(filepath)
-        logger.info(f"head of dataset history for {symbol}")
+        logger.info(f"Head of dataset history for {symbol}")
         print(dataset_history.head())
     return filepath
 
@@ -120,12 +118,12 @@ if __name__ == "__main__":
     # TODO: Make this part user dependent
     symbol_list = ["AAPL"]
     csv_dir = [data_scrapper(symbol) for symbol in symbol_list]
-    initial_capital = 100_000
+    initial_capital = 100000.0
     heartbeat = 0.0
     start_date = datetime.datetime(2022, 1, 1, 0, 0, 0)
 
     backtest = Backtest(
-        csv_dir[-1],
+        csv_dir,
         symbol_list,
         initial_capital,
         start_date,

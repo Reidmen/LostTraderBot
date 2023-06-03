@@ -189,6 +189,7 @@ class Portfolio:
     def output_summary_with_statistics(self) -> List[str]:
         """ "Create a list of summary statistics for the portfolio."""
         total_return = self.equity_curve["equity_curve"][-1]
+        print("total return shape ", total_return.shape)
         returns = self.equity_curve["returns"]
         profit_and_losses = self.equity_curve["equity_curve"]
 

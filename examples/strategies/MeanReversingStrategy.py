@@ -2,7 +2,7 @@ import datetime
 import logging
 from pathlib import Path
 from queue import Queue
-from typing import Union
+from typing import Union, List
 
 import statsmodels.api as sm
 import yfinance as yf
@@ -16,7 +16,7 @@ from losttraderbot.strategy import Strategy
 
 path_to_file = Path("./logfiles")
 path_to_file.mkdir(parents=True, exist_ok=True)
-name = path_to_file.joinpath(f"{Path(__file__).stem}.log")
+name = path_to_file.joinpath(f"{str(Path(__file__).stem)}.log")
 formatter = logging.Formatter(fmt=" %(name)s :: %(levelname)-8s :: %(message)s")
 
 logger = logging.getLogger("Trader")
@@ -42,7 +42,7 @@ class OLSMeanReversingStrategy(Strategy):
         ols_window: int = 100,
         zscore_low: float = 0.5,
         zscore_high: float = 3.0,
-        symbol_pair: Union[tuple, list] = ["MSFT", "GOOG"],
+        symbol_pair: List[str] = ["MSFT", "GOOG"],
     ):
         self.bars = bars
         self.symbol_list = self.bars.symbol_list
@@ -70,6 +70,7 @@ class OLSMeanReversingStrategy(Strategy):
             self.long_market = True
             x_signal = SignalEvent(1, p0, dt, "LONG", 1.0)
             y_signal = SignalEvent(1, p1, dt, "SHORT", hedge_ratio)
+            logger.info(f"LONG : {p0} SHORT: {p1} HEDGE: {hedge_ratio}")
 
         if abs(zscore_last) <= self.zscore_low and self.long_market:
             self.long_market = False
@@ -80,6 +81,7 @@ class OLSMeanReversingStrategy(Strategy):
             self.short_market = True
             x_signal = SignalEvent(1, p0, dt, "SHORT", 1.0)
             y_signal = SignalEvent(1, p1, dt, "LONG", hedge_ratio)
+            logger.info(f"SHORT: {p0} LONG: {p1} HEDGE: {hedge_ratio}")
 
         if abs(zscore_last) <= self.zscore_low and self.short_market:
             self.short_market = False
@@ -134,15 +136,15 @@ def data_scrapper(symbol: str) -> str:
             start=start_date, end=end_date, interval="1h"
         )
         dataset_history.to_csv(filepath)
-        print(f"head of dataset history for {symbol}")
-        print(dataset_history.head())
+        logger.info(f"Head of dataset history for {symbol}")
+        logger.debug(dataset_history.head())
     return filepath
 
 
 if __name__ == "__main__":
     symbol_pair = ["MSFT", "GOOG"]
     csv_dir = [data_scrapper(symbol) for symbol in symbol_pair]
-    initial_capital = [100000, 100000]
+    initial_capital = 100_000
     heartbeat = 0.0
     start_date = datetime.datetime(2022, 1, 1, 0, 0, 0)
 
