@@ -184,6 +184,7 @@ class Portfolio:
         curve["returns"] = curve["total"].pct_change()
         curve["equity_curve"] = (1.0 + curve["returns"]).cumprod()
 
+        # TODO: save equity curve into csv file
         self.equity_curve: pd.DataFrame = curve
 
     def output_summary_with_statistics(self) -> List[str]:
@@ -196,7 +197,6 @@ class Portfolio:
         sharpe_ratio = create_sharpe_ratio(returns, periods=252 * 60 * 6.5)
         drawdown, max_drawdown, duration = create_drawdowns(profit_and_losses)
         self.equity_curve["drawdown"] = drawdown
-        # TODO Include sharpe ratio computation
         stats: List[str] = [
             ("Total Returns {:.2f}".format((total_return - 1.0) * 100)),
             ("Sharpe Ratio {:.2f}".format(sharpe_ratio)),

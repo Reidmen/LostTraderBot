@@ -9,8 +9,8 @@
 class DataHandler {
     public:
         std::string csvDirectory;
-        std::queue<std::shared_ptr<Event>>* eventQueue = 0;
-        bool* continueBacktesting = 0;
+        std::unique_ptr<std::queue<std::shared_ptr<Event>>> EventQueue = 0;
+        std::unique_ptr<bool> continueBacktesting = 0;
         std::vector<std::string> symbols;
 
         virtual void loadData() = 0;
