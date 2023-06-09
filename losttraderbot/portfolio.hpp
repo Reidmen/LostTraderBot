@@ -45,6 +45,11 @@ class BasicPortfolio: Portfolio {
         void updateHoldingsOnFill(
                 std::shared_ptr<FillEvent> event);
 
+        void onSignal(
+                std::shared_ptr<SignalEvent>);
+        void onFill(
+                std::shared_ptr<FillEvent>);
+
         // computes and returns performace metrics
         void getMetrics();
 };
