@@ -5,14 +5,14 @@
 The lost bot looking for a new future!
 
 
-# TODO (Event Base backend)
+## TODO (Event Base backend)
 - Add unit tests per each file.
 - Add more strategies, include extra datasets
 - Fix typing issues
 - Speed up using pybind. Aiming at event testing of around ~100 ms max.
 - Introduce complete backtesting in c++ (ideally, std=c++17/20).
 
-# TODO (Strategies)
+## TODO (Strategies)
 - Add multiple indicators: Hurst exponent, Ichimoku cloud, SuperTrend, etc.
 - Add order book dynamic, i.e. level 1, 2, 3 volume as a way to determine market direction.
 - Dynamic book depth to limit exposure to position limits.
@@ -20,7 +20,7 @@ The lost bot looking for a new future!
 - Crossing the book dynamics
 - Manage inventory in general 
 
-## Instalation 
+## Installation
 To use this library, install it as a PIPy package: 
 
 ```shell
