@@ -7,12 +7,16 @@ import datetime
 import os
 import os.path
 from pathlib import Path
-from typing import List, Type
+import queue
+from typing import List, Type, Union
 
 import numpy as np
 import pandas as pd
 
 from .event import Event, MarketEvent
+
+
+EventType = Union[Event, queue.Queue]
 
 
 class DataHandler(ABC):
@@ -68,9 +72,14 @@ class HistoricCSVDataHandler(DataHandler):
     latest bar, analogous to a live interface.
     """
 
-    def __init__(self, events: Event, csv_dir: List[str], symbol_list: List[str]):
+    def __init__(
+        self,
+        events: EventType,
+        csv_dir: List[str],
+        symbol_list: List[str],
+    ):
         """Initializes the historic data handler"""
-        self.events: Event = events
+        self.events: EventType = events
         self.csv_dir: List[str] = csv_dir
         self.symbol_list: List[str] = symbol_list
 

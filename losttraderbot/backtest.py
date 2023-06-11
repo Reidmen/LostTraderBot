@@ -7,7 +7,7 @@ import queue
 import time
 from typing import Callable, List, Type
 
-from .data import DataHandler
+from .data import DataHandler, HistoricCSVDataHandler
 from .execution import ExecutionHandler
 from .portfolio import Portfolio
 from .strategy import Strategy
@@ -24,7 +24,7 @@ class Backtest:
         initial_capital: float,
         start_date: date,
         heartbeat: float,
-        data_handler_object: Type[DataHandler],
+        data_handler_object: Type[HistoricCSVDataHandler],
         execution_handler: Type[ExecutionHandler],
         strategy: Type[Strategy],
         portfolio: Type[Portfolio],
@@ -46,11 +46,11 @@ class Backtest:
 
     def _generate_trading_instances(
         self,
-        data_handler_object: DataHandler,
-        execution_handler: ExecutionHandler,
-        strategy: Strategy,
-        portfolio: Portfolio,
-    ):
+        data_handler_object: Type[HistoricCSVDataHandler],
+        execution_handler: Type[ExecutionHandler],
+        strategy: Type[Strategy],
+        portfolio: Type[Portfolio],
+    ) -> None:
         """Creates trading instances."""
         print("Creating DataHandler, ExecutionHandler, Strategy and Portfolio")
         self.data_handler = data_handler_object(
