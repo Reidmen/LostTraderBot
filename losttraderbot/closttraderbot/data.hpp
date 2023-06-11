@@ -16,7 +16,8 @@ class DataHandler {
         std::vector<std::string> symbols;
 
         virtual void loadData() = 0;
-        virtual std::vector<std::tuple<double, double, double, double>> getLatestBars(std::string* symbol, int n = 1) = 0;
+        virtual std::vector<std::tuple<double, double, double, double, double>> getLatestBars(
+                std::unique_ptr<std::string> symbol, int n = 1) = 0;
         virtual void  updateBars() = 0;
         virtual ~DataHandler() = default;
 };
@@ -33,6 +34,10 @@ class HistoricCSVDataHandler: public DataHandler {
                 std::unique_ptr<bool> continueBacktest);
 
         HistoricCSVDataHandler() = default;
+
+        std::vector<std::tuple<double, double, double, double, double>> getLatestBars(
+                std::unique_ptr<std::string> symbol, int n = 1);
+
         void loadData();
         void updateBars();
 

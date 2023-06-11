@@ -1,5 +1,6 @@
 #pragma once
 #include "data.hpp"
+#include "event.hpp"
 #include "execution.hpp"
 #include "portfolio.hpp"
 #include "strategy.hpp"

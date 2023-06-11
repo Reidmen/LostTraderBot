@@ -18,7 +18,7 @@ class Portfolio {
 class BasicPortfolio: Portfolio {
     public:
         // pointer to datahandler
-        std::unique_ptr<DataHandler> dataHandler;
+        std::unique_ptr<HistoricCSVDataHandler> dataHandler;
         // pointer to queue of Event
         std::unique_ptr<std::queue<std::shared_ptr<Event>>> eventQueue;
         // vector of symbols
@@ -31,7 +31,7 @@ class BasicPortfolio: Portfolio {
         std::unordered_map<std::string, double> performanceMetrics;
 
         BasicPortfolio(
-                std::unique_ptr<DataHandler> dataHandler,
+                std::unique_ptr<HistoricCSVDataHandler> dataHandler,
                 std::vector<std::string> symbols,
                 std::unique_ptr<double> initialCapital
                 );
