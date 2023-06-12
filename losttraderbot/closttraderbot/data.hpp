@@ -1,3 +1,4 @@
+#pragma once
 #include <cstddef>
 #include <fstream>
 #include <string>
