@@ -1,0 +1,36 @@
+# Using PEP 621 for setup, no backwards compatibility
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["losttraderbot"]
+
+[project]
+name = "losttraderbot"
+authors = [
+    {name = "Reidmen Arostica", email = "r.rethmawn@gmail.com"},
+]
+description = """
+Event-driven backend tester written in Python.
+"""
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT License"}
+classifiers = [
+    "Development Statys :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.8",
+]
+dependencies = [
+    "matplotlib==3.7.1",
+    "numpy==1.24.2",
+    "pandas==1.5.3",
+    "scipy==1.10.1",
+    "statsmodels==0.13.5",
+    "yfinance==0.2.12",
+]
+
+version = "0.1.0"
