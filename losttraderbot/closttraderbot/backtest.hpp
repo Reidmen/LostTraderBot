@@ -13,7 +13,7 @@ class Backtest {
     public:
         std::vector<std::string> symbols;
         std::string csvDirectory;
-        std::unique_ptr<double> initialCapital;
+        std::shared_ptr<double> initialCapital;
         bool continueBacktest;
         std::queue<std::shared_ptr<Event>> eventQueue;
         InstantExecutionHandler exchange;
@@ -22,10 +22,10 @@ class Backtest {
         TradingStrategy strategy;
 
         Backtest(
-                std::unique_ptr<std::vector<std::string>> symbols,
-                std::unique_ptr<std::string> csvDirectory,
-                std::unique_ptr<double> initialCapital
+                std::shared_ptr<std::vector<std::string>> symbols,
+                std::shared_ptr<std::string> csvDirectory,
+                std::shared_ptr<double> initialCapital
                 );
 
-        void run(std::unique_ptr<TradingStrategy>);
+        void run(std::shared_ptr<TradingStrategy>);
 };

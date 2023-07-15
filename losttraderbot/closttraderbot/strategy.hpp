@@ -10,17 +10,21 @@
 
 class Strategy {
     public:
+        // creates signalEvents based on historical data
         virtual void calculateSignals() = 0;
 };
 
 
 class TradingStrategy : Strategy {
     public:
-        std::unique_ptr<HistoricCSVDataHandler> dataHandler;
-        std::unique_ptr<std::queue<std::shared_ptr<Event>>> eventQueue;
+        // pointer to datahandler
+        std::shared_ptr<HistoricCSVDataHandler> dataHandler;
+        // pointer to event queue
+        std::shared_ptr<std::queue<std::shared_ptr<Event>>> eventQueue;
+        // flag for assets bought
         std::unordered_map<std::string, bool> bought;
 
-        TradingStrategy(std::unique_ptr<HistoricCSVDataHandler> dataHandler);
+        TradingStrategy(std::shared_ptr<HistoricCSVDataHandler> dataHandler);
 
         TradingStrategy() = default;
 
