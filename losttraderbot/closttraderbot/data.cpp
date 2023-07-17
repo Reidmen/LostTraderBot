@@ -8,7 +8,10 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
+
+#include "event.hpp"
 
 HistoricCSVDataHandler::HistoricCSVDataHandler(
     std::queue<std::shared_ptr<Event>> eventQueue,
@@ -40,9 +43,32 @@ void HistoricCSVDataHandler::loadData() {
 
         while (std::getline(ss, lineItems, ',')) {
             lineVector.emplace_back(lineItems);
-        };
+        }
         // TODO inser into innerMap
-    };
+
+        innerMap.insert(
+            {std::stoll(lineVector[0]),
+             std::make_tuple(std::stod(lineVector[3]), std::stod(lineVector[4]),
+                             std::stod(lineVector[5]), std::stod(lineVector[6]),
+                             std::stod(lineVector[8]))});
+    }
+
+    this->data.insert(std::make_pair(symbols[0], innerMap));
+    // initialize iterator over data
+    this->bar = data[symbols[0]].begin();
+
+    // initialize  consumed data
+    innerMap.clear();
+    this->consumedData.insert(std::make_pair(symbols[0], innerMap));
 };
 
-void HistoricCSVDataHandler::updateBars(){};
+void HistoricCSVDataHandler::updateBars() {
+    // add a bar to comsumedData
+    if (bar != data[symbols[0]].end()) {
+        bar++;
+    } else {
+        *continueBacktest = false;
+    }
+
+    eventQueue.push(std::make_shared<MarketEvent>());
+};
