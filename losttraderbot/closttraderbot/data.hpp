@@ -53,7 +53,7 @@ class HistoricCSVDataHandler : public DataHandler {
 
     // retunrs the 'n' latest bar in format <[open, high, low, close, volume]>
     std::vector<std::tuple<double, double, double, double, double>>
-    getLatestBars(std::unique_ptr<std::string> symbol, int n = 1);
+    getLatestBars(std::shared_ptr<std::string> symbol, int n = 1);
 
     // format and load the data into memory
     void loadData();
