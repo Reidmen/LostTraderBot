@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "backtest.hpp"
+#include "strategy.hpp"
 
 int main(int argc, char **argv) {
     auto initialCapital = std::make_shared<double>(1000.0);
@@ -14,8 +15,8 @@ int main(int argc, char **argv) {
     symbols->push_back("ETH/USDT");
     Backtest backtest = Backtest(symbols, csvDirectory, initialCapital);
 
-    // TODO TradingStrategy is abstract class
-    // Strategy TradingStrategy(backtest.dataHandler);
+    auto dataHandler = std::make_shared<HistoricCSVDataHandler>(backtest.dataHandler);
+    TradingStrategy TradingStrategy(dataHandler);
 
     auto start = std::chrono::high_resolution_clock::now();
     // backtest.run(std::shared_ptr<TradingStrategy>)
