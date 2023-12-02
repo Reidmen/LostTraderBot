@@ -1,24 +1,26 @@
 #include "backtest.hpp"
-#include "event.hpp"
-#include "execution.hpp"
-#include "strategy.hpp"
+
 #include <iostream>
 #include <memory>
 #include <vector>
 
-Backtest::Backtest(
-        std::unique_ptr<std::vector<std::string>> symbols,
-        std::unique_ptr<std::string> csvDirectory,
-        std::unique_ptr<double> initialCapital
-        ) : exchange(&eventQueue, &dataHandler) {
+#include "event.hpp"
+#include "execution.hpp"
+#include "strategy.hpp"
+
+Backtest::Backtest(std::shared_ptr<std::vector<std::string>> symbols,
+                   std::shared_ptr<std::string> csvDirectory,
+                   std::shared_ptr<double> initialCapital)
+    : exchange(&eventQueue, &dataHandler) {
     this->symbols = *symbols;
     this->csvDirectory = *csvDirectory;
-    this->initialCapital = *initialCapital;
+    *this->initialCapital = *initialCapital;
     this->continueBacktest = false;
-    this->dataHandler = HistoricCSVDataHandler(&dataHandler, symbols, initialCapital);
-}
+    this->dataHandler =
+        HistoricCSVDataHandler(&dataHandler, symbols, initialCapital);
+};
 
-void Backtest::run(std::unique_ptr<TradingStrategy> strategy) {
+void Backtest::run(std::shared_ptr<TradingStrategy> strategy) {
     continueBacktest = true;
 
     dataHandler.loadData();
@@ -32,27 +34,23 @@ void Backtest::run(std::unique_ptr<TradingStrategy> strategy) {
             eventQueue.pop();
 
             switch (event->type) {
-                case 0:
-                    {
-                        strategy->calculateSignals();
-                        portfolio.update();
-                        break;
+                case 0: {
+                    strategy->calculateSignals();
+                    portfolio.update();
+                    break;
+                }
+                case 1: {
+                    auto signal = std::dynamic_pointer_cast(event);
+                    if (event->target == "ALGO") {
+                        portfolio.onSignal(signal);
                     }
-                case 1:
-                    {
-                        auto signal = std::dynamic_pointer_cast(event); 
-                        if (event->target == "ALGO") {
-                            portfolio.onSignal(signal);
-                        }
-                    }
-                case 2:
-                    {
-                        auto order = std::dynamic_pointer_cast(event); 
-                        exchange.executeOrder(order);
-                        // order->logOrder()
-                        break;
-                    }
-            
+                }
+                case 2: {
+                    auto order = std::dynamic_pointer_cast(event);
+                    exchange.executeOrder(order);
+                    // order->logOrder()
+                    break;
+                }
             }
         }
 
