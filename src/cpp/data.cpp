@@ -14,10 +14,8 @@
 #include "event.hpp"
 
 HistoricCSVDataHandler::HistoricCSVDataHandler(
-    std::queue<std::shared_ptr<Event>> eventQueue,
-    std::shared_ptr<std::string> csvDirectory,
-    std::shared_ptr<std::vector<std::string>> symbols,
-    std::shared_ptr<bool> continueBacktest) {
+    QueueEventType eventQueue, SharedStringType csvDirectory,
+    SharedSymbolsType symbols, std::shared_ptr<bool> continueBacktest) {
     this->eventQueue = eventQueue;
     this->csvDirectory = *csvDirectory;
     this->symbols = *symbols;
@@ -31,9 +29,7 @@ void HistoricCSVDataHandler::loadData() {
     if (!fileToLoad.is_open()) throw std::runtime_error("Could not load file");
 
     std::string line, lineItems;
-    std::map<long long, std::tuple<double, double, double, double, double>>
-        innerMap;
-
+    HistoricalDataType innerMap;
     // skip for row in the data file
     std::getline(fileToLoad, line);
 
@@ -44,8 +40,6 @@ void HistoricCSVDataHandler::loadData() {
         while (std::getline(ss, lineItems, ',')) {
             lineVector.emplace_back(lineItems);
         }
-        // TODO inser into innerMap
-
         innerMap.insert(
             {std::stoll(lineVector[0]),
              std::make_tuple(std::stod(lineVector[3]), std::stod(lineVector[4]),
@@ -60,11 +54,26 @@ void HistoricCSVDataHandler::loadData() {
     // initialize  consumed data
     innerMap.clear();
     this->consumedData.insert(std::make_pair(symbols[0], innerMap));
-};
+}
+
+DatabaseType HistoricCSVDataHandler::getLatestBars(SharedStringType symbol,
+                                                   int n) {
+    DatabaseType current_database;
+    current_database.reserve(n);
+
+    if (this->consumedData[*symbol].size() < n) return current_database;
+    for (auto rit = this->consumedData[*symbol].rbegin();
+         n > 0 && rit != this->consumedData[*symbol].rend(); ++rit, --n) {
+        current_database.emplace_back(rit->second);
+    }
+
+    return current_database;
+}
 
 void HistoricCSVDataHandler::updateBars() {
     // add a bar to comsumedData
     if (bar != data[symbols[0]].end()) {
+        consumedData[symbols[0]][bar->first] = bar->second;
         bar++;
     } else {
         *continueBacktest = false;

@@ -41,9 +41,7 @@ void Backtest::run(std::shared_ptr<TradingStrategy> strategy) {
                 }
                 case 1: {
                     auto signal = std::dynamic_pointer_cast(event);
-                    if (event->target == "ALGO") {
-                        portfolio.onSignal(signal);
-                    }
+                    portfolio.onSignal(signal);
                 }
                 case 2: {
                     auto order = std::dynamic_pointer_cast(event);
