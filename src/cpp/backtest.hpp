@@ -16,14 +16,13 @@ class Backtest {
     std::string csvDirectory;
     std::shared_ptr<double> initialCapital;
     bool continueBacktest;
-    std::queue<std::shared_ptr<Event>> eventQueue;
+    QueueEventType eventQueue;
     InstantExecutionHandler exchange;
     BasicPortfolio portfolio;
     HistoricCSVDataHandler dataHandler;
     TradingStrategy strategy;
 
-    Backtest(std::shared_ptr<std::vector<std::string>> symbols,
-             std::shared_ptr<std::string> csvDirectory,
+    Backtest(SharedSymbolsType symbols, SharedStringType csvDirectory,
              std::shared_ptr<double> initialCapital);
 
     void run(std::shared_ptr<TradingStrategy>);

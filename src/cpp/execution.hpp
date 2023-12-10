@@ -14,9 +14,8 @@ class ExecutionHandler {
 
 class InstantExecutionHandler : ExecutionHandler {
    public:
-    InstantExecutionHandler(
-        std::shared_ptr<std::queue<std::shared_ptr<Event>>> eventQueue,
-        std::shared_ptr<HistoricCSVDataHandler> dataHandler);
+    InstantExecutionHandler(QueueEventType* eventQueue,
+                            HistoricCSVDataHandler* dataHandler);
 
     InstantExecutionHandler() = default;
 

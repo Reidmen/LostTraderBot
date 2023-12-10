@@ -50,7 +50,7 @@ class HistoricCSVDataHandler : public DataHandler {
     // iterator over the historical data contained in data
     HistoricalDataType::iterator bar;
 
-    HistoricCSVDataHandler(QueueEventType eventQueue,
+    HistoricCSVDataHandler(QueueEventType* eventQueue,
                            SharedStringType csvDirectory,
                            SharedSymbolsType symbols,
                            std::shared_ptr<bool> continueBacktest);
