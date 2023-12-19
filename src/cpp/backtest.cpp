@@ -4,20 +4,20 @@
 #include <memory>
 #include <vector>
 
+#include "data.hpp"
 #include "event.hpp"
 #include "execution.hpp"
 #include "strategy.hpp"
 
-Backtest::Backtest(std::shared_ptr<std::vector<std::string>> symbols,
-                   std::shared_ptr<std::string> csvDirectory,
+Backtest::Backtest(SharedSymbolsType symbols, SharedStringType csvDirectory,
                    std::shared_ptr<double> initialCapital)
     : exchange(&eventQueue, &dataHandler) {
     this->symbols = *symbols;
     this->csvDirectory = *csvDirectory;
-    *this->initialCapital = *initialCapital;
+    this->initialCapital = initialCapital;
     this->continueBacktest = false;
-    this->dataHandler =
-        HistoricCSVDataHandler(&dataHandler, symbols, initialCapital);
+    this->dataHandler = HistoricCSVDataHandler(&eventQueue, csvDirectory,
+                                               symbols, &continueBacktest);
 };
 
 void Backtest::run(std::shared_ptr<TradingStrategy> strategy) {
@@ -40,13 +40,11 @@ void Backtest::run(std::shared_ptr<TradingStrategy> strategy) {
                     break;
                 }
                 case 1: {
-                    auto signal = std::dynamic_pointer_cast(event);
-                    if (event->target == "ALGO") {
-                        portfolio.onSignal(signal);
-                    }
+                    auto signal = std::dynamic_pointer_cast<SignalEvent>(event);
+                    portfolio.onSignal(signal);
                 }
                 case 2: {
-                    auto order = std::dynamic_pointer_cast(event);
+                    auto order = std::dynamic_pointer_cast<OrderEvent>(event);
                     exchange.executeOrder(order);
                     // order->logOrder()
                     break;

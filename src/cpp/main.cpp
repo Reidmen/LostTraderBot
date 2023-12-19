@@ -15,11 +15,12 @@ int main(int argc, char **argv) {
     symbols->push_back("ETH/USDT");
     Backtest backtest = Backtest(symbols, csvDirectory, initialCapital);
 
-    auto dataHandler = std::make_shared<HistoricCSVDataHandler>(backtest.dataHandler);
-    TradingStrategy TradingStrategy(dataHandler);
+    auto dataHandler =
+        std::make_shared<HistoricCSVDataHandler>(backtest.dataHandler);
+    auto trading_strategy = std::make_shared<TradingStrategy>(dataHandler);
 
     auto start = std::chrono::high_resolution_clock::now();
-    // backtest.run(std::shared_ptr<TradingStrategy>)
+    backtest.run(trading_strategy);
     auto end = std::chrono::high_resolution_clock::now();
     auto time =
         std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
