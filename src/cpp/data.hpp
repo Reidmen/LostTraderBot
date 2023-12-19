@@ -52,8 +52,7 @@ class HistoricCSVDataHandler : public DataHandler {
 
     HistoricCSVDataHandler(QueueEventType* eventQueue,
                            SharedStringType csvDirectory,
-                           SharedSymbolsType symbols,
-                           std::shared_ptr<bool> continueBacktest);
+                           SharedSymbolsType symbols, bool* continueBacktest);
 
     HistoricCSVDataHandler() = default;
 

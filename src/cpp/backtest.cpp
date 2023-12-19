@@ -16,8 +16,8 @@ Backtest::Backtest(SharedSymbolsType symbols, SharedStringType csvDirectory,
     this->csvDirectory = *csvDirectory;
     this->initialCapital = initialCapital;
     this->continueBacktest = false;
-    this->dataHandler = HistoricCSVDataHandler(eventQueue, csvDirectory,
-                                               symbols, continueBacktest);
+    this->dataHandler = HistoricCSVDataHandler(&eventQueue, csvDirectory,
+                                               symbols, &continueBacktest);
 };
 
 void Backtest::run(std::shared_ptr<TradingStrategy> strategy) {
@@ -40,11 +40,11 @@ void Backtest::run(std::shared_ptr<TradingStrategy> strategy) {
                     break;
                 }
                 case 1: {
-                    auto signal = std::dynamic_pointer_cast(event);
+                    auto signal = std::dynamic_pointer_cast<SignalEvent>(event);
                     portfolio.onSignal(signal);
                 }
                 case 2: {
-                    auto order = std::dynamic_pointer_cast(event);
+                    auto order = std::dynamic_pointer_cast<OrderEvent>(event);
                     exchange.executeOrder(order);
                     // order->logOrder()
                     break;
