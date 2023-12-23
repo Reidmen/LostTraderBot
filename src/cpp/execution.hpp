@@ -5,11 +5,13 @@
 #include "data.hpp"
 #include "event.hpp"
 
+using SharedOrderType = std::shared_ptr<OrderEvent>;
+
 class ExecutionHandler {
    public:
-    std::shared_ptr<std::queue<std::shared_ptr<Event>>> eventQueue;
-    std::shared_ptr<HistoricCSVDataHandler> dataHandler;
-    virtual void executeOrder(std::shared_ptr<OrderEvent>) = 0;
+    QueueEventType* eventQueue;
+    HistoricCSVDataHandler* dataHandler;
+    virtual void executeOrder(SharedOrderType order) = 0;
 };
 
 class InstantExecutionHandler : ExecutionHandler {
@@ -19,5 +21,5 @@ class InstantExecutionHandler : ExecutionHandler {
 
     InstantExecutionHandler() = default;
 
-    void executeOrder(std::shared_ptr<OrderEvent> order);
+    void executeOrder(SharedOrderType order);
 };
