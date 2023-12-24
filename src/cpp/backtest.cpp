@@ -28,7 +28,7 @@ void Backtest::run(std::shared_ptr<TradingStrategy> strategy) {
     dataHandler.loadData();
     dataHandler.updateBars();
 
-    fmt::print("Stating backtesting...");
+    fmt::print("Starting backtesting...");
 
     while (continueBacktest) {
         while (!eventQueue.empty()) {
