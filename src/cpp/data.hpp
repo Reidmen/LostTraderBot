@@ -22,12 +22,14 @@ using SymbolHistoricalDataType =
     std::unordered_map<std::string, HistoricalDataType>;
 using SharedStringType = std::shared_ptr<std::string>;
 using QueueEventType = std::queue<std::shared_ptr<Event>>;
-using SharedSymbolsType = std::shared_ptr<std::vector<std::string>>;
+using SharedQueueEventType = std::shared_ptr<QueueEventType>;
+using SymbolsType = std::vector<std::string>;
+using SharedSymbolsType = std::shared_ptr<SymbolsType>;
 
 class DataHandler {
    public:
     std::string csvDirectory;
-    QueueEventType eventQueue;
+    std::shared_ptr<QueueEventType> eventQueue;
     std::shared_ptr<bool> continueBacktest;
     std::vector<std::string> symbols;
 
@@ -50,7 +52,7 @@ class HistoricCSVDataHandler : public DataHandler {
     // iterator over the historical data contained in data
     HistoricalDataType::iterator bar;
 
-    HistoricCSVDataHandler(QueueEventType* eventQueue,
+    HistoricCSVDataHandler(std::shared_ptr<QueueEventType> eventQueue,
                            SharedStringType csvDirectory,
                            SharedSymbolsType symbols, bool* continueBacktest);
 

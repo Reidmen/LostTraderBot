@@ -11,26 +11,27 @@
 
 using SharedSignalEventType = std::shared_ptr<SignalEvent>;
 using SharedFillEventType = std::shared_ptr<FillEvent>;
+using SymbolsType = std::vector<std::string>;
 using PositionsType = std::unordered_map<std::string, double>;
 using MapPositionsType = std::map<long long, PositionsType>;
 using MetricsType = std::map<std::string, double>;
 
-class Portfolio {
+class Portfolio : std::enable_shared_from_this<Portfolio> {
    public:
     virtual void onSignal(SharedSignalEventType event) = 0;
     virtual void onFill(SharedFillEventType event) = 0;
 };
 
-class BasicPortfolio : Portfolio {
+class BasicPortfolio : Portfolio, std::enable_shared_from_this<BasicPortfolio> {
    public:
     // pointer to datahandler
-    std::unique_ptr<HistoricCSVDataHandler> dataHandler;
+    std::shared_ptr<HistoricCSVDataHandler> dataHandler;
     // pointer to queue of Event
-    QueueEventType* eventQueue;
+    std::shared_ptr<QueueEventType> eventQueue;
     // vector of symbols
-    std::vector<std::string> symbols;
+    std::shared_ptr<SymbolsType> symbols;
     // capital of Portfolio
-    std::unique_ptr<double> initialCapital;
+    std::shared_ptr<double> initialCapital;
     // all positions of the system
     MapPositionsType allPositions;
     // current position
@@ -41,9 +42,9 @@ class BasicPortfolio : Portfolio {
     // performance metrics
     MetricsType performanceMetrics;
 
-    BasicPortfolio(std::unique_ptr<HistoricCSVDataHandler> dataHandler,
-                   std::vector<std::string> symbols,
-                   std::unique_ptr<double> initialCapital);
+    BasicPortfolio(std::shared_ptr<HistoricCSVDataHandler> dataHandler,
+                   std::shared_ptr<SymbolsType> symbols,
+                   std::shared_ptr<double> initialCapital);
 
     BasicPortfolio() = default;
 
