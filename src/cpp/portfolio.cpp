@@ -1,7 +1,9 @@
 #include "portfolio.hpp"
 
+#include <ctime>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "data.hpp"
@@ -69,4 +71,46 @@ auto BasicPortfolio::constructCurrentHoldings() -> PositionsType {
     map.insert({"total", *initialCapital});
 
     return map;
+}
+
+void BasicPortfolio::update() {
+    float notCash = 0.0;
+    auto prevTotal = allHoldings.rbegin()->second["total"];
+    auto prevEquityCurve = allHoldings.rbegin()->second["equity_curve"];
+    auto symbol_to_use = (*symbols)[0];
+    auto timestamp = dataHandler->consumedData[symbol_to_use].rbegin()->first;
+    for (auto symbol : *symbols) {
+        allPositions[timestamp][symbol] = currentPositions[symbol];
+        auto price =
+            std::get<3>(dataHandler->consumedData[symbol].rbegin()->second);
+        auto currentValue = currentPositions[symbol] * price;
+        allHoldings[timestamp][symbol] = currentValue;
+        currentHoldings[symbol] = currentValue;
+        notCash += currentValue;
+    }
+
+    currentHoldings["total"] = currentHoldings["cash"] + notCash;
+    allHoldings[timestamp]["total"] = currentHoldings["total"];
+    allHoldings[timestamp]["cash"] = currentHoldings["cash"];
+    allHoldings[timestamp]["commission"] = currentHoldings["commission"];
+    allHoldings[timestamp]["slippage"] = currentHoldings["slippage"];
+
+    if (allHoldings.size() > 1) {
+        auto returns = (allHoldings[timestamp]["total"] / prevTotal) - 1;
+        allHoldings[timestamp]["returns"] = returns;
+        allHoldings[timestamp]["equity_curve"] =
+            (prevEquityCurve + 1) * (returns + 1) - 1;
+    }
+}
+
+void BasicPortfolio::updatePositionOnFill(SharedFillEventType fill_event) {
+    int direction = 0;
+
+    if (fill_event->direction == "LONG") {
+        direction = 1;
+    } else if (fill_event->direction == "SHORT") {
+        direction = -1;
+    }
+
+    currentPositions[fill_event->symbol] += direction * fill_event->quantity;
 }
