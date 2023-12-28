@@ -58,6 +58,9 @@ class BasicPortfolio : Portfolio, std::enable_shared_from_this<BasicPortfolio> {
 
     void update();
 
+    void onSignal(SharedSignalEventType event);
+    void onFill(SharedFillEventType event);
+
     void updatePositionOnFill(SharedFillEventType event);
     void updateHoldingsOnFill(SharedFillEventType event);
 
