@@ -1,5 +1,7 @@
 #include "backtest.hpp"
 
+#include <fmt/core.h>
+
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -26,7 +28,7 @@ void Backtest::run(std::shared_ptr<TradingStrategy> strategy) {
     dataHandler.loadData();
     dataHandler.updateBars();
 
-    std::cout << "Starting backtesting..." << std::endl;
+    fmt::print("Starting backtesting...");
 
     while (continueBacktest) {
         while (!eventQueue.empty()) {
@@ -55,7 +57,6 @@ void Backtest::run(std::shared_ptr<TradingStrategy> strategy) {
         dataHandler.updateBars();
     }
 
-    std::cout << "Backtest ended\n" << std::endl;
-    std::cout << "Performance metrics" << std::endl;
+    fmt::print("Backtest ended\n Performance metrics\n");
     portfolio.getMetrics();
 }
