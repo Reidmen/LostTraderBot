@@ -2,7 +2,10 @@ from __future__ import annotations
 import pathlib
 import pandas as pd
 import numpy as np
-from tabib import RSI, BBANDS, MACD, NATR, WILLR, WMA, EMA, SMA, CCI, PPO
+from scipy.sparse import data
+from talib import RSI, BBANDS, MACD, WILLR, PPO
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 START = "2000-01-01"
 END = "2023-12-10"
@@ -45,18 +48,62 @@ def create_training_dataset_with_indicators(
         prices = (
             hdf["quanld/wiki/prices"]
             .loc[index[START:END, :], adj_ohlcv]
-            .rename(coluns=lambda x: x.replace("adj_", ""))
+            .rename(columns=lambda x: x.replace("adj_", ""))
             .swaplevel()
             .sort_index()
             .dropna()
         )
-        metadata = hdf["us_equities/stocks"].loc[:, ["marketcap", "sector"]]
-        ohlcv_names = prices.colums.tolist()
-
-        normalize_datasets_with_index(prices, metadata)
+        # metadata = hdf["us_equities/stocks"].loc[:, ["marketcap", "sector"]]
+        ohlcv_names = prices.columns.tolist()
+        normalize_datasets_with_index(prices)
         rolling_universe_of_stocks(prices, num_of_stocks, train_window)
         generate_technical_indicators(prices, indicators_range)
         save_dataset_to_hdf5(prices, ohlcv_names, index)
+
+
+def explore_dataset_and_generate_figures(
+    path_to_data: pathlib.Path = pathlib.Path("datasets", "prices_quandl.h5"),
+) -> None:
+    idx = pd.IndexSlice
+    with pd.HDFStore(path_to_data.as_posix()) as stored_data:
+        column_names = [
+            "adj_open",
+            "adj_high",
+            "adj_low",
+            "adj_close",
+            "adj_volume",
+        ]
+        dataset = (
+            stored_data["quanld/wiki/prices"]
+            .loc[idx["2007":"2010", "AAPL"], column_names]
+            .unstack("ticker")
+            .swaplevel(axis=1)
+            .loc[:, "AAPL"]
+            .rename(columns=lambda x: x.replace("adj_", ""))
+        )
+        compute_indicators_for_figures(dataset)
+
+
+def compute_indicators_for_figures(dataset: pd.DataFrame) -> None:
+    macd, macd_signal, macd_hist = MACD(
+        dataset.close, fastperiod=12, slowperiod=26, signalperiod=9
+    )
+    dataset = pd.DataFrame(
+        {
+            "AAPL": dataset.close,
+            "MACD": macd,
+            "MACD_SIG": macd_signal,
+            "MACD_HIST": macd_hist,
+        }
+    )
+    print(dataset.tail(10))
+
+    fig, axes = plt.subplots(nrows=2, figsize=(15, 8))
+    dataset.AAPL.plot(ax=axes[0])
+    dataset.drop("AAPL", axis=1).plot(ax=axes[1])
+    fig.tight_layout()
+    plt.show()
+    sns.despine()
 
 
 def save_dataset_to_hdf5(
@@ -143,12 +190,15 @@ def compute_bollinger_bands_indicator(
 
 
 def normalize_datasets_with_index(
-    prices: pd.DataFrame, metadata: pd.DataFrame
+    prices: pd.DataFrame, metadata: pd.DataFrame | None = None
 ) -> None:
     if "volume" in prices.columns:
         prices.volume /= 1e3
     prices.index.names = ["symbol", "date"]
-    metadata.index.name = "symbol"
+
+    if isinstance(metadata, pd.DataFrame):
+        assert metadata is not None
+        metadata.index.name = "symbol"
 
 
 def rolling_universe_of_stocks(
@@ -175,7 +225,7 @@ def rolling_universe_of_stocks(
     check_dataset_and_save(
         universe, pathlib.Path("universe_dataset.h5"), "universe"
     )
-    print(universe.info())
+    print(universe.info(verbose=True))
 
 
 def check_dataset_and_save(
@@ -218,4 +268,5 @@ def get_universe_of_stocks(
 if __name__ == "__main__":
     # TODO: include adequate parser
     # load_data_from_quandl()
-    create_training_dataset_with_indicators()
+    # create_training_dataset_with_indicators()
+    explore_dataset_and_generate_figures()
