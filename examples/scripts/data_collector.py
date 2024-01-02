@@ -2,7 +2,6 @@ from __future__ import annotations
 import pathlib
 import pandas as pd
 import numpy as np
-from scipy.sparse import data
 from talib import RSI, BBANDS, MACD, WILLR, PPO
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -43,6 +42,7 @@ def create_training_dataset_with_indicators(
     train_window: int = 5,
     indicators_range: tuple[int, int] = (6, 21),
 ) -> None:
+    print("creating training dataset")
     index = pd.IndexSlice
     with pd.HDFStore(path_to_data.as_posix()) as hdf:
         prices = (
@@ -56,7 +56,10 @@ def create_training_dataset_with_indicators(
         # metadata = hdf["us_equities/stocks"].loc[:, ["marketcap", "sector"]]
         ohlcv_names = prices.columns.tolist()
         normalize_datasets_with_index(prices)
-        rolling_universe_of_stocks(prices, num_of_stocks, train_window)
+        parent_path = path_to_data.parent
+        rolling_universe_of_stocks(
+            prices, num_of_stocks, train_window, parent_path
+        )
         generate_technical_indicators(prices, indicators_range)
         save_dataset_to_hdf5(prices, ohlcv_names, index)
 
@@ -114,31 +117,35 @@ def save_dataset_to_hdf5(
         "datasets", "processed_data.h5"
     ),
 ) -> None:
+    print("save training dataset to hdf5")
     universe_cleaned = universe.drop(drop_names, axis=1)
     print(universe_cleaned.info(verbose=True))
     universe_cleaned = universe_cleaned.sort_index()
     with pd.HDFStore(pathfile_to_save.as_posix()) as to_store:
         to_store.put("features", universe_cleaned.loc[index[:, :"2005"], :])
-        to_store.put("targets", universe_cleaned.loc[index[:, "2005":]])
+        # to_store.put("targets", universe_cleaned.loc[index[:, "2005":]])
 
 
 def generate_technical_indicators(
     universe: pd.DataFrame, ranges: tuple[int, int]
 ) -> None:
     """generates technical indicators into dataset"""
+    print("generate technical indicators")
     assert "close" in universe.columns
     range_values = list(range(ranges[0], ranges[1]))
     for period in range_values:
+        """
+        print("computing RSI indicator")
         universe[f"{period:02}_RSI"] = universe.groupby(
             level="symbol"
         ).close.apply(RSI, timeperiod=period)
-
-        universe[f"{period:02}_WILLR"](
-            universe.groupby(level="symbol", group_keys=False).apply(
-                lambda x: WILLR(x.high, x.low, x.close, timeperiod=period)
-            )
-        )
-
+        """
+        print(f"compute Williams%R indicator period {period}")
+        universe[f"{period:02}_WILLR"] = universe.groupby(
+            level="symbol", group_keys=False
+        ).apply(lambda x: WILLR(x.high, x.low, x.close, timeperiod=period))
+        """
+        print("computing Bollinger bands indicator")
         bbh, bbl = f"{period:02}_BBH", f"{period:02}_BBL"
         universe = universe.join(
             universe.groupby(level="symbol").close.apply(
@@ -156,25 +163,24 @@ def generate_technical_indicators(
             .div(universe.close)
             .apply(np.log1p)
         )
-
+        print("computing PPO indicator")
         universe[f"{period:02}_PPO"] = universe.groupby(
             level="symbol"
         ).close.apply(PPO, fastperiod=period, matype=1)
-
-        universe[f"{period:02}_MACD"] = universe.groupby(
+        """
+        print(f"compute MA-conv/div indicator period {period}")
+        universe[f"{period:02}_MACD"] = (universe.groupby(
             "symbol", group_keys=False
         ).close.apply(
             compute_moving_average_convergence_divergence_indicator,
             signalperiod=period,
-        )
+        ))
 
 
 def compute_moving_average_convergence_divergence_indicator(
     close_price: pd.DataFrame, signalperiod: int
-) -> pd.DataFrame:
+) -> pd.Series:
     macd = MACD(close_price, signalperiod=signalperiod)[0]
-    print(type(macd))
-    print(macd.info())
     return (macd - np.mean(macd)) / np.std(macd)
 
 
@@ -192,6 +198,7 @@ def compute_bollinger_bands_indicator(
 def normalize_datasets_with_index(
     prices: pd.DataFrame, metadata: pd.DataFrame | None = None
 ) -> None:
+    print("normalize datasets with index")
     if "volume" in prices.columns:
         prices.volume /= 1e3
     prices.index.names = ["symbol", "date"]
@@ -205,8 +212,10 @@ def rolling_universe_of_stocks(
     prices: pd.DataFrame,
     universe_size: int,
     train_window: int,
+    parent_path: pathlib.Path,
 ) -> None:
     """pick num_of_stocks most-traded stocks in dollars volume"""
+    print("pick rolling universe of stocks")
     assert all(item in prices.columns for item in ["volume", "close"])
     dollar_volume: pd.DataFrame = (
         prices.close.mul(prices.volume).unstack("symbol").sort_index()
@@ -223,16 +232,17 @@ def rolling_universe_of_stocks(
         prices, dollar_volume, years_to_consider, universe_size, train_window
     )
     check_dataset_and_save(
-        universe, pathlib.Path("universe_dataset.h5"), "universe"
+        universe, parent_path.joinpath("universe_dataset.h5"), "universe"
     )
-    print(universe.info(verbose=True))
+    print(f"rolling universe\n{universe.info(verbose=True)}")
 
 
 def check_dataset_and_save(
     universe: pd.DataFrame, path_to_save: pathlib.Path, key_name: str
 ) -> None:
-    print(universe.info())
+    print("check, describe and save universe dataset")
     print(universe.groupby("symbol").size().describe())
+    print(universe.tail(10))
     universe.to_hdf(path_to_save.as_posix(), key=key_name)
 
 
@@ -268,5 +278,5 @@ def get_universe_of_stocks(
 if __name__ == "__main__":
     # TODO: include adequate parser
     # load_data_from_quandl()
-    # create_training_dataset_with_indicators()
-    explore_dataset_and_generate_figures()
+    create_training_dataset_with_indicators()
+    # explore_dataset_and_generate_figures()
