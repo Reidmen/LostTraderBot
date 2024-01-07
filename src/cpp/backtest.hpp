@@ -12,11 +12,11 @@
 
 class Backtest {
    public:
-    std::vector<std::string> symbols;
-    std::string csvDirectory;
+    SymbolsType symbols;
+    SharedStringType csvDirectory;
     std::shared_ptr<double> initialCapital;
     bool continueBacktest;
-    QueueEventType eventQueue;
+    SharedQueueEventType eventQueue;
     InstantExecutionHandler exchange;
     BasicPortfolio portfolio;
     HistoricCSVDataHandler dataHandler;
