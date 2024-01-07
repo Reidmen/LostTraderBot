@@ -9,17 +9,19 @@
 #include "data.hpp"
 #include "event.hpp"
 #include "execution.hpp"
+#include "portfolio.hpp"
 #include "strategy.hpp"
 
 Backtest::Backtest(SharedSymbolsType symbols, SharedStringType csvDirectory,
                    std::shared_ptr<double> initialCapital)
     : exchange(&eventQueue, &dataHandler) {
     this->symbols = *symbols;
-    this->csvDirectory = *csvDirectory;
+    this->csvDirectory = csvDirectory;
     this->initialCapital = initialCapital;
     this->continueBacktest = false;
-    this->dataHandler = HistoricCSVDataHandler(&eventQueue, csvDirectory,
+    this->dataHandler = HistoricCSVDataHandler(eventQueue, csvDirectory,
                                                symbols, &continueBacktest);
+    this->portfolio = BasicPortfolio(&dataHandler, &symbols, initialCapital);
 };
 
 void Backtest::run(std::shared_ptr<TradingStrategy> strategy) {
