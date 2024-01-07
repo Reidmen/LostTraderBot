@@ -26,7 +26,7 @@ using SharedQueueEventType = std::shared_ptr<QueueEventType>;
 using SymbolsType = std::vector<std::string>;
 using SharedSymbolsType = std::shared_ptr<SymbolsType>;
 
-class DataHandler {
+class DataHandler : std::enable_shared_from_this<DataHandler> {
    public:
     std::string csvDirectory;
     std::shared_ptr<QueueEventType> eventQueue;
@@ -39,7 +39,9 @@ class DataHandler {
     virtual ~DataHandler() = default;
 };
 
-class HistoricCSVDataHandler : public DataHandler {
+class HistoricCSVDataHandler
+    : public DataHandler,
+      std::enable_shared_from_this<HistoricCSVDataHandler> {
    public:
     std::string csvDirectory;
 
@@ -52,7 +54,7 @@ class HistoricCSVDataHandler : public DataHandler {
     // iterator over the historical data contained in data
     HistoricalDataType::iterator bar;
 
-    HistoricCSVDataHandler(std::shared_ptr<QueueEventType> eventQueue,
+    HistoricCSVDataHandler(SharedQueueEventType eventQueue,
                            SharedStringType csvDirectory,
                            SharedSymbolsType symbols, bool* continueBacktest);
 
