@@ -13,10 +13,9 @@
 #include "data.hpp"
 #include "event.hpp"
 
-BasicPortfolio::BasicPortfolio(
-    std::shared_ptr<HistoricCSVDataHandler> dataHandler,
-    std::shared_ptr<SymbolsType> symbols,
-    std::shared_ptr<double> initialCapital) {
+BasicPortfolio::BasicPortfolio(std::shared_ptr<SymbolsType> symbols,
+                               std::shared_ptr<double> initialCapital,
+                               HistoricCSVDataHandler* dataHandler) {
     this->dataHandler = dataHandler;
     this->eventQueue = dataHandler->eventQueue;
     this->symbols = symbols;

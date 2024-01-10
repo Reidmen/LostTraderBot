@@ -6,17 +6,18 @@
 #include "event.hpp"
 
 using SharedOrderType = std::shared_ptr<OrderEvent>;
+using SharedHistoricCSVDataHandler = std::shared_ptr<HistoricCSVDataHandler>;
 
 class ExecutionHandler {
    public:
-    QueueEventType* eventQueue;
+    SharedQueueEventType eventQueue;
     HistoricCSVDataHandler* dataHandler;
     virtual void executeOrder(SharedOrderType order) = 0;
 };
 
 class InstantExecutionHandler : ExecutionHandler {
    public:
-    InstantExecutionHandler(QueueEventType* eventQueue,
+    InstantExecutionHandler(SharedQueueEventType eventQueue,
                             HistoricCSVDataHandler* dataHandler);
 
     InstantExecutionHandler() = default;

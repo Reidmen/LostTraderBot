@@ -10,7 +10,7 @@
 #include "portfolio.hpp"
 #include "strategy.hpp"
 
-class Backtest {
+class Backtest : std::enable_shared_from_this<Backtest> {
    public:
     SymbolsType symbols;
     SharedStringType csvDirectory;

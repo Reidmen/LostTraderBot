@@ -13,15 +13,15 @@
 #include "strategy.hpp"
 
 Backtest::Backtest(SharedSymbolsType symbols, SharedStringType csvDirectory,
-                   std::shared_ptr<double> initialCapital)
-    : exchange(&eventQueue, &dataHandler) {
+                   std::shared_ptr<double> initialCapital) {
     this->symbols = *symbols;
     this->csvDirectory = csvDirectory;
     this->initialCapital = initialCapital;
     this->continueBacktest = false;
     this->dataHandler = HistoricCSVDataHandler(eventQueue, csvDirectory,
                                                symbols, &continueBacktest);
-    this->portfolio = BasicPortfolio(&dataHandler, &symbols, initialCapital);
+    this->exchange = InstantExecutionHandler(eventQueue, &dataHandler);
+    this->portfolio = BasicPortfolio(symbols, initialCapital, &dataHandler);
 };
 
 void Backtest::run(std::shared_ptr<TradingStrategy> strategy) {
@@ -33,9 +33,9 @@ void Backtest::run(std::shared_ptr<TradingStrategy> strategy) {
     fmt::print("Starting backtesting...");
 
     while (continueBacktest) {
-        while (!eventQueue.empty()) {
-            auto event = eventQueue.front();
-            eventQueue.pop();
+        while (!eventQueue->empty()) {
+            auto event = eventQueue->front();
+            eventQueue->pop();
 
             switch (event->type) {
                 case 0: {
