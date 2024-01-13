@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
         "../../examples/datasets/dataset_1h_AAPL.csv");
     auto symbols = std::make_shared<SymbolsType>();
     symbols->push_back("APPL");
-    Backtest backtest = Backtest(symbols, csvDirectory, initialCapital);
+    auto backtest = Backtest(symbols, csvDirectory, initialCapital);
 
     auto dataHandler =
         std::make_shared<HistoricCSVDataHandler>(backtest.dataHandler);

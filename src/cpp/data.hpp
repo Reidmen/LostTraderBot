@@ -29,8 +29,8 @@ using SharedSymbolsType = std::shared_ptr<SymbolsType>;
 class DataHandler : std::enable_shared_from_this<DataHandler> {
    public:
     std::string csvDirectory;
-    std::shared_ptr<QueueEventType> eventQueue;
-    std::shared_ptr<bool> continueBacktest;
+    SharedQueueEventType eventQueue;
+    bool* continueBacktest;
     std::vector<std::string> symbols;
 
     virtual void loadData() = 0;
@@ -40,7 +40,7 @@ class DataHandler : std::enable_shared_from_this<DataHandler> {
 };
 
 class HistoricCSVDataHandler
-    : public DataHandler,
+    : DataHandler,
       std::enable_shared_from_this<HistoricCSVDataHandler> {
    public:
     std::string csvDirectory;

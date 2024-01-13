@@ -7,7 +7,7 @@
 #include "event.hpp"
 
 InstantExecutionHandler::InstantExecutionHandler(
-    SharedQueueEventType eventQueue, SharedHistoricCSVDataHandler dataHandler) {
+    SharedQueueEventType eventQueue, HistoricCSVDataHandler* dataHandler) {
     this->eventQueue = eventQueue;
     this->dataHandler = dataHandler;
 }
