@@ -40,7 +40,7 @@ class DataHandler : std::enable_shared_from_this<DataHandler> {
 };
 
 class HistoricCSVDataHandler
-    : DataHandler,
+    : public DataHandler,
       std::enable_shared_from_this<HistoricCSVDataHandler> {
    public:
     std::string csvDirectory;

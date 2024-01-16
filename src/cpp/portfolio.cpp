@@ -127,7 +127,8 @@ void BasicPortfolio::updateHoldingsOnFill(SharedFillEventType fill_event) {
         direction = -1;
     }
 
-    auto price = std::get<3>(dataHandler->consumedData.at(fill_event->symbol));
+    auto price = std::get<3>(
+        dataHandler->consumedData.at(fill_event->symbol).rbegin()->second);
     auto cost = direction * fill_event->quantity * price;
 
     currentHoldings[fill_event->symbol] += cost;
