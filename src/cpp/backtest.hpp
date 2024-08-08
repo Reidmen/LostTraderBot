@@ -10,7 +10,7 @@
 #include "portfolio.hpp"
 #include "strategy.hpp"
 
-class Backtest {
+class Backtest : std::enable_shared_from_this<Backtest> {
    public:
     SymbolsType symbols;
     SharedStringType csvDirectory;
@@ -22,7 +22,7 @@ class Backtest {
     HistoricCSVDataHandler dataHandler;
     TradingStrategy strategy;
 
-    Backtest(SharedSymbolsType symbols, SharedStringType csvDirectory,
+    Backtest(SharedSymbolsType ptr_symbols, SharedStringType csvDirectory,
              std::shared_ptr<double> initialCapital);
 
     void run(std::shared_ptr<TradingStrategy>);

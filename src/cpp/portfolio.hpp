@@ -25,9 +25,9 @@ class Portfolio : std::enable_shared_from_this<Portfolio> {
 class BasicPortfolio : Portfolio, std::enable_shared_from_this<BasicPortfolio> {
    public:
     // pointer to datahandler
-    std::shared_ptr<HistoricCSVDataHandler> dataHandler;
+    HistoricCSVDataHandler* dataHandler;
     // pointer to queue of Event
-    std::shared_ptr<QueueEventType> eventQueue;
+    SharedQueueEventType eventQueue;
     // vector of symbols
     std::shared_ptr<SymbolsType> symbols;
     // capital of Portfolio
@@ -42,9 +42,9 @@ class BasicPortfolio : Portfolio, std::enable_shared_from_this<BasicPortfolio> {
     // performance metrics
     MetricsType performanceMetrics;
 
-    BasicPortfolio(std::shared_ptr<HistoricCSVDataHandler> dataHandler,
-                   std::shared_ptr<SymbolsType> symbols,
-                   std::shared_ptr<double> initialCapital);
+    BasicPortfolio(std::shared_ptr<SymbolsType> symbols,
+                   std::shared_ptr<double> initialCapital,
+                   HistoricCSVDataHandler* dataHandler);
 
     BasicPortfolio() = default;
 

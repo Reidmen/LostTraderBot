@@ -13,9 +13,10 @@
 
 #include "event.hpp"
 
-HistoricCSVDataHandler::HistoricCSVDataHandler(
-    QueueEventType eventQueue, SharedStringType csvDirectory,
-    SharedSymbolsType symbols, std::shared_ptr<bool> continueBacktest) {
+HistoricCSVDataHandler::HistoricCSVDataHandler(SharedQueueEventType eventQueue,
+                                               SharedStringType csvDirectory,
+                                               SharedSymbolsType symbols,
+                                               bool* continueBacktest) {
     this->eventQueue = eventQueue;
     this->csvDirectory = *csvDirectory;
     this->symbols = *symbols;
@@ -79,5 +80,5 @@ void HistoricCSVDataHandler::updateBars() {
         *continueBacktest = false;
     }
 
-    eventQueue.push(std::make_shared<MarketEvent>());
+    eventQueue->push(std::make_shared<MarketEvent>());
 };
