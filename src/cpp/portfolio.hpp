@@ -96,6 +96,7 @@ class BasicPortfolio : Portfolio, std::enable_shared_from_this<BasicPortfolio> {
         map.insert({firstTimestamp, innerMap});
         return map;
     };
+
     auto constructCurrentHoldings() -> PositionsType {
         PositionsType map;
         for (auto symbol : *symbols) {
@@ -155,6 +156,7 @@ class BasicPortfolio : Portfolio, std::enable_shared_from_this<BasicPortfolio> {
         }
         currentPositions[event->symbol] += direction * event->quantity;
     };
+
     void updateHoldingsOnFill(SharedFillEventType event) {
         int direction = 0;
         if (event->direction == "LONG") {
@@ -188,6 +190,7 @@ class BasicPortfolio : Portfolio, std::enable_shared_from_this<BasicPortfolio> {
         }
         eventQueue->push(std::make_shared<OrderEvent>(
             &event->symbol, "MARKET", &quantity, &direction, event->target));
+        }
     };
 
     auto getMaximumQuantity(SharedSignalEventType event);
