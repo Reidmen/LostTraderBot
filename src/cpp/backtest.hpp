@@ -31,7 +31,7 @@ class Backtest : std::enable_shared_from_this<Backtest> {
 
     void run(std::shared_ptr<TradingStrategy> strategy) {
         // Load data and update bars
-        dataHandler.loadData();
+        dataHandler.loadDataFromMemory();
         dataHandler.updateBars();
 
         std::cout << "Starting backtesting..." << std::endl;
@@ -42,19 +42,24 @@ class Backtest : std::enable_shared_from_this<Backtest> {
 
             // logic per event type
             switch (event->type) {
-                case 0: {
+                case EventType::MARKET: {
                     strategy->calculateSignals();
                     portfolio.update();
                     break;
                 }
-                case 1: {
+                case EventType::SIGNAL: {
                     auto signal = std::dynamic_pointer_cast<SignalEvent>(event);
                     portfolio.onSignal(signal);
                 }
-                case 2: {
+                case EventType::ORDER: {
                     auto order = std::dynamic_pointer_cast<OrderEvent>(event); 
                     exchange.executeOrder(order);
                     order->logOrder();
+                    break;
+                }
+                case EventType::FILL: {
+                    auto fill = std::dynamic_pointer_cast<FillEvent>(event);
+                    portfolio.onFill(fill);
                     break;
                 }
             }
