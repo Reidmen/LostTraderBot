@@ -11,16 +11,24 @@ using SharedHistoricCSVDataHandler = std::shared_ptr<HistoricCSVDataHandler>;
 class ExecutionHandler {
    public:
     SharedQueueEventType eventQueue;
-    HistoricCSVDataHandler* dataHandler;
+    SharedHistoricCSVDataHandler dataHandler;
     virtual void executeOrder(SharedOrderType order) = 0;
 };
 
 class InstantExecutionHandler : ExecutionHandler {
    public:
     InstantExecutionHandler(SharedQueueEventType eventQueue,
-                            HistoricCSVDataHandler* dataHandler);
+                            SharedHistoricCSVDataHandler dataHandler){
+        this->eventQueue = eventQueue;
+        this->dataHandler = dataHandler;
+    };
 
     InstantExecutionHandler() = default;
 
-    void executeOrder(SharedOrderType order);
+    void executeOrder(SharedOrderType order) {
+        auto timestamp = dataHandler->bar->first;
+        eventQueue->push(std::make_shared<FillEvent>(
+            &order->symbol, &timestamp, &order->quantity, order->direction, 0,
+            order->target));
+    };
 };
