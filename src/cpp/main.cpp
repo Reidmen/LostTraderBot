@@ -1,13 +1,9 @@
-#include <fmt/core.h>
 #include <ta-lib/ta_common.h>
 #include <ta-lib/ta_defs.h>
 #include <ta-lib/ta_libc.h>
 
 #include <chrono>
-#include <iostream>
 #include <memory>
-#include <string>
-#include <vector>
 
 #include "backtest.hpp"
 #include "data.hpp"
@@ -18,7 +14,7 @@
 int main(int argc, char **argv) {
     TA_RetCode initialize_talib = TA_Initialize();
     if (initialize_talib != TA_SUCCESS) {
-        fmt::print("Cannot initialize TA-lib");
+        std::cout << "Cannot initialize TA-lib" << std::endl;
         return -1;
     }
 
@@ -33,13 +29,14 @@ int main(int argc, char **argv) {
         std::make_shared<HistoricCSVDataHandler>(backtest.dataHandler);
     auto trading_strategy = std::make_shared<TradingStrategy>(dataHandler);
 
+    std::cout << "Running backtest..." << std::endl;
     auto start = std::chrono::high_resolution_clock::now();
     backtest.run(trading_strategy);
     auto end = std::chrono::high_resolution_clock::now();
     auto time =
         std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-    fmt::print("Trading backtest done. Took {} ms.", time.count());
+    std::cout << "Trading backtest done. Took " << time.count() << " ms." << std::endl;
 
     return TA_Shutdown();
 }
